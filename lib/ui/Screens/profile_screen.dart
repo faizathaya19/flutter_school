@@ -1,4 +1,5 @@
 import 'package:bpibs/constants/const.dart';
+import 'package:bpibs/ui/Screens/home_screen.dart';
 import 'package:flutter/material.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -16,7 +17,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Scaffold(
       backgroundColor: backgroundColor1,
       appBar: AppBar(
-        title: Text('Profile'),
+        backgroundColor: backgroundColor1,
+        elevation: 0,
+        toolbarHeight: 100, // Atur tinggi khusus untuk toolbar
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_outlined),
+          onPressed: () {
+            Navigator.popAndPushNamed(context, HomeScreen.id);
+          },
+        ),
+        title: const Text(
+          'Profile',
+          style: TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
+          ),
+        ),
+        centerTitle: true,
       ),
       body: Stack(
         children: [
@@ -25,53 +43,50 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: Center(
               child: Column(
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.only(top: 30),
-                    child: Container(
-                      height: 450,
-                      width: 380,
-                      decoration: BoxDecoration(
-                        color: backgroundCard1,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.all(20.0),
-                            child: Text(
-                              'Data Peserta Didik',
-                              style: basicTextStyle.copyWith(
-                                fontSize: 16,
-                                fontWeight: bold,
-                              ),
+                  Container(
+                    height: 450,
+                    width: 380,
+                    decoration: BoxDecoration(
+                      color: backgroundCard1,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(20.0),
+                          child: Text(
+                            'Data Peserta Didik',
+                            style: basicTextStyle.copyWith(
+                              fontSize: 16,
+                              fontWeight: bold,
                             ),
                           ),
-                          _buildProfileItem('assets/icon/user.png',
-                              'Nama Lengkap', 'Aisyah Syafa Atifah'),
-                          _buildDivider(),
-                          _buildProfileItem('assets/icon/studentcenter.png',
-                              'NIS', '2122011003'),
-                          _buildDivider(),
-                          _buildProfileItem(
-                              'assets/icon/accountbalancewallet.png',
-                              'No Rekening VA',
-                              '21222018'),
-                          _buildDivider(),
-                          _buildProfileItem('assets/icon/classroom.png',
-                              'Kelas', '10 IPA - Akhwat'),
-                          _buildDivider(),
-                          _buildProfileItem(
-                              'assets/icon/teacher.png', 'kelas', ''),
-                          _buildDivider(),
-                          _buildProfileItem('assets/icon/bunkbed.png', 'Asrama',
-                              'Lubaabah Bintu Haarits'),
-                          _buildDivider(),
-                          _buildProfileItem('assets/icon/guardian.png',
-                              'Wali asrama', 'Ustadzah Afifah Nur Indallah'),
-                          _buildDivider(),
-                        ],
-                      ),
+                        ),
+                        _buildProfileItem('assets/icon/user.png',
+                            'Nama Lengkap', 'Aisyah Syafa Atifah'),
+                        _buildDivider(),
+                        _buildProfileItem('assets/icon/studentcenter.png',
+                            'NIS', '2122011003'),
+                        _buildDivider(),
+                        _buildProfileItem(
+                            'assets/icon/accountbalancewallet.png',
+                            'No Rekening VA',
+                            '21222018'),
+                        _buildDivider(),
+                        _buildProfileItem('assets/icon/classroom.png', 'Kelas',
+                            '10 IPA - Akhwat'),
+                        _buildDivider(),
+                        _buildProfileItem(
+                            'assets/icon/teacher.png', 'kelas', ''),
+                        _buildDivider(),
+                        _buildProfileItem('assets/icon/bunkbed.png', 'Asrama',
+                            'Lubaabah Bintu Haarits'),
+                        _buildDivider(),
+                        _buildProfileItem('assets/icon/guardian.png',
+                            'Wali asrama', 'Ustadzah Afifah Nur Indallah'),
+                        _buildDivider(),
+                      ],
                     ),
                   ),
                   Padding(
@@ -99,8 +114,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           _buildProfileItem(
                               'assets/icon/phone.png', 'No HP', '08129852612'),
                           _buildDivider(),
-                          Padding(
-                            padding: const EdgeInsets.only(right: 20, left: 45),
+                          const Padding(
+                            padding: EdgeInsets.only(right: 20, left: 45),
                             child: Text(
                                 '* no hp ini akan digunakan untuk pengiriman informasi dan notifikasi'),
                           ),
@@ -171,7 +186,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildDivider() {
-    return Padding(
+    return const Padding(
       padding: EdgeInsets.only(left: 45, right: 20),
       child: Divider(
         color: Color.fromARGB(255, 10, 0, 0),

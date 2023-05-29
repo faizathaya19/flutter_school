@@ -1,5 +1,14 @@
+import 'package:bpibs/ui/Screens/login_screen.dart';
+import 'package:bpibs/ui/Screens/pickupregisform_screen.dart';
+import 'package:bpibs/ui/Screens/pocketmoneyrec_screen.dart';
+import 'package:bpibs/ui/Screens/profile_screen.dart';
+import 'package:bpibs/ui/Screens/spppaymentrec_screen.dart';
+import 'package:bpibs/ui/Screens/visitregisform_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:bpibs/constants/const.dart';
+
+import '../widgets/home_witget.dart';
+import 'achievpointsrec_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   static const id = 'HomeScreen';
@@ -44,20 +53,22 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         backgroundColor: backgroundColor1,
         elevation: 0,
-        title: Center(
-          child: Text(
-            'Portal Wali Siswa',
-            style: basicTextStyle.copyWith(
-              fontSize: 20,
-              fontWeight: bold,
-            ),
+        toolbarHeight: 75,
+        title: Text(
+          'Portal Wali Siswa',
+          style: basicTextStyle.copyWith(
+            fontSize: 20,
+            fontWeight: bold,
           ),
         ),
+        centerTitle: true,
         actions: [
           IconButton(
             color: Colors.black,
-            onPressed: () {},
-            icon: Icon(Icons.logout),
+            onPressed: () {
+              Navigator.popAndPushNamed(context, LoginScreen.id);
+            },
+            icon: const Icon(Icons.logout_rounded),
           ),
         ],
       ),
@@ -117,9 +128,13 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               Transform.translate(
                 offset: const Offset(0.0, -50.0),
-                child: Container(
+                child: SizedBox(
                   height: 160,
                   child: PageView.builder(
+                    controller: PageController(
+                      initialPage: 0, // Set the initial page index
+                      viewportFraction: 0.9, // Set the viewport fraction
+                    ),
                     itemCount: cardData.length,
                     itemBuilder: (context, index) {
                       final data = cardData[index];
@@ -151,7 +166,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                           data['text1'],
                                           style: basicTextStyle.copyWith(
                                             fontSize: 10,
-                                            fontWeight: light,
+                                            fontWeight: semiBold,
                                           ),
                                         ),
                                         if (data.containsKey('null'))
@@ -203,8 +218,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                               ),
                               Container(
-                                width: 400,
-                                height: 50,
                                 decoration: const BoxDecoration(
                                   color: Color.fromARGB(255, 197, 194, 194),
                                   borderRadius: BorderRadius.only(
@@ -213,7 +226,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                                 ),
                                 child: Padding(
-                                  padding: const EdgeInsets.all(15.0),
+                                  padding: const EdgeInsets.all(16.0),
                                   child: Row(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.center,
@@ -252,12 +265,94 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       );
                     },
-                    controller: PageController(
-                      initialPage: 0, // Set the initial page index
-                      viewportFraction: 0.9, // Set the viewport fraction
-                    ),
                   ),
                 ),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  InkWell(
+                    onTap: () {
+                      Navigator.pushReplacementNamed(context, ProfileScreen.id);
+                    },
+                    child: const CustomCard(
+                      imagePath: 'assets/icon/profileh.png',
+                      text: 'Profile',
+                    ),
+                  ),
+                  InkWell(
+                    onTap: () {
+                      Navigator.pushReplacementNamed(
+                          context, SPPPaymentrecScreen.id);
+                    },
+                    child: const CustomCard(
+                      imagePath: 'assets/icon/paymenth.png',
+                      text: 'SPP & Pembayaran',
+                    ),
+                  ),
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  InkWell(
+                    onTap: () {
+                      Navigator.pushReplacementNamed(
+                          context, PocketmoneyrecScreen.id);
+                    },
+                    child: const CustomCard(
+                      imagePath: 'assets/icon/waleth.png',
+                      text: 'Uang Saku',
+                    ),
+                  ),
+                  InkWell(
+                    onTap: () {
+                      Navigator.pushReplacementNamed(
+                          context, ArchievpointsrecScreen.id);
+                    },
+                    child: const CustomCard(
+                      imagePath: 'assets/icon/archivementh.png',
+                      text: 'Point Prestasi',
+                    ),
+                  ),
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  InkWell(
+                    onTap: () {},
+                    child: const CustomCard(
+                      imagePath: 'assets/icon/academixgradesh.png',
+                      text: 'Nilai Akademik Diniah',
+                    ),
+                  ),
+                  InkWell(
+                    onTap: () {
+                      Navigator.pushReplacementNamed(
+                          context, PickupregisformScreen.id);
+                    },
+                    child: const CustomCard(
+                      imagePath: 'assets/icon/pickuph.png',
+                      text: 'Daftar Penjemputan',
+                    ),
+                  ),
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  InkWell(
+                    onTap: () {
+                      Navigator.pushReplacementNamed(
+                          context, VisitregisformScreen.id);
+                    },
+                    child: const CustomCard(
+                      imagePath: 'assets/icon/visith.png',
+                      text: 'Daftar Kunjungan',
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

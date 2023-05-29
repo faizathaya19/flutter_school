@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 class ChangepassScreen extends StatefulWidget {
+  static const id = 'ChangepassScreen';
   const ChangepassScreen({super.key});
 
   @override
@@ -10,10 +11,6 @@ class ChangepassScreen extends StatefulWidget {
 class _ChangepassScreenState extends State<ChangepassScreen> {
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
-        child: Text('test'),
-      ),
-    );
+    return const Placeholder();
   }
 }
