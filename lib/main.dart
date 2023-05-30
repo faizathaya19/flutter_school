@@ -29,6 +29,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    String nis = "";
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'BPIBS Mobile',
@@ -39,7 +40,7 @@ class MyApp extends StatelessWidget {
         LoginScreen.id: (context) => const LoginScreen(),
         ForgetpassScreen.id: (context) => const ForgetpassScreen(),
         HomeScreen.id: (context) => const HomeScreen(),
-        ProfileScreen.id: (context) => const ProfileScreen(),
+        ProfileScreen.id: (context) => ProfileScreen(nis),
         SPPPaymentrecScreen.id: (context) => const SPPPaymentrecScreen(),
         VisitregisformScreen.id: (context) => const VisitregisformScreen(),
         ChangepassScreen.id: (context) => const ChangepassScreen(),

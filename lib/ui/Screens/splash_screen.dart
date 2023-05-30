@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../constants/const.dart';
 import '../widgets/splash_widget.dart';
-import 'login_screen.dart';
+import 'Login_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   static const id = 'SplashScreen';
@@ -21,7 +21,7 @@ class _SplashScreenState extends State<SplashScreen> {
       Navigator.pushReplacementNamed(context, LoginScreen.id);
     });
     // Sembunyikan keyboard jika aktif
-  SystemChannels.textInput.invokeMethod('TextInput.hide');
+    SystemChannels.textInput.invokeMethod('TextInput.hide');
   }
 
   @override

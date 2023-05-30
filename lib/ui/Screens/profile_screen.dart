@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+
 import 'package:bpibs/constants/const.dart';
 import 'package:bpibs/ui/Screens/home_screen.dart';
 import 'package:flutter/material.dart';
@@ -5,13 +8,90 @@ import 'package:flutter/material.dart';
 class ProfileScreen extends StatefulWidget {
   static const id = 'ProfileScreen';
 
-  const ProfileScreen({super.key});
+  final String nis;
 
+  const ProfileScreen(this.nis);
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  String namaLengkap = '';
+  String jenisKelamin = '';
+  String noRekeningVA = '';
+  String kelas = '';
+  String waliKelas = '';
+  String asrama = '';
+  String waliAsrama = '';
+  String noHP = '';
+
+  Future<void> _fetchProfile() async {
+    String nis = widget.nis;
+
+    // Ganti URL_API dengan URL yang sesuai
+    String url = 'https://shoesez.000webhostapp.com/get_user.php?nis=$nis';
+
+    http.Response response = await http.get(Uri.parse(url));
+
+    if (response.statusCode == 200) {
+      Map<String, dynamic> data = jsonDecode(response.body);
+      if (data['status'] == 'success') {
+        setState(() {
+          namaLengkap = data['nama_lengkap'];
+          jenisKelamin = data['jenis_kelamin'];
+          noRekeningVA = data['no_rekening_va'];
+          kelas = data['kelas'];
+          waliKelas = data['wali_kelas'];
+          asrama = data['asrama'];
+          waliAsrama = data['wali_asrama'];
+          noHP = data['no_hp'];
+        });
+      } else {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Error'),
+              content: Text(data['message']),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      }
+    } else {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Error'),
+            content: Text('Gagal mendapatkan data profil. Silakan coba lagi.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchProfile();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -64,7 +144,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                         ),
                         _buildProfileItem('assets/icon/user.png',
-                            'Nama Lengkap', 'Aisyah Syafa Atifah'),
+                            'Nama Lengkap', namaLengkap),
                         _buildDivider(),
                         _buildProfileItem('assets/icon/studentcenter.png',
                             'NIS', '2122011003'),
