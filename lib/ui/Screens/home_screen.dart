@@ -7,7 +7,7 @@ import 'package:bpibs/ui/Screens/visitregisform_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:bpibs/constants/const.dart';
 
-import '../widgets/home_witget.dart';
+import '../widgets/home_widget.dart';
 import 'achievpointsrec_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -62,16 +62,8 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
         centerTitle: true,
-        actions: [
-          IconButton(
-            color: Colors.black,
-            onPressed: () {
-              Navigator.popAndPushNamed(context, LoginScreen.id);
-            },
-            icon: const Icon(Icons.logout_rounded),
-          ),
-        ],
       ),
+      drawer: drawerWidget(context),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
@@ -91,7 +83,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             'https://avatars0.githubusercontent.com/u/33479836?v=4'),
                       ),
                       Padding(
-                        padding: const EdgeInsets.only(left: 10),
+                        padding: const EdgeInsets.only(left: 10, top: 5),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [

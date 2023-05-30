@@ -38,7 +38,68 @@ class _PocketmoneyrecScreenState extends State<PocketmoneyrecScreen> {
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [],
+        children: [
+          Container(
+            width: MediaQuery.of(context).size.width,
+            height: 100,
+            color: const Color.fromARGB(255, 255, 255, 255).withOpacity(0.5),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text('Aisyah Syafa Atifah'),
+                const Text('Total Saldo : Rp 350,000.00'),
+              ],
+            ),
+          ),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.red,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: SingleChildScrollView(
+                  child: ListView(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Container(
+                          padding: const EdgeInsets.only(left: 10, right: 10),
+                          height: 50,
+                          decoration: BoxDecoration(
+                            color: Colors.blue,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text('Mutasi Sistem'),
+                                  SizedBox(
+                                    height: 3,
+                                  ),
+                                  Text('2022-11-23')
+                                ],
+                              ),
+                              Text('+ Rp 150,000.00')
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
