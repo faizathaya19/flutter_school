@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 
 import '../../constants/const.dart';
 
-class CustomCard extends StatelessWidget {
+class CustomCard1 extends StatelessWidget {
   final String textharga;
   final String texttanggal;
   final String textstatus;
 
-  const CustomCard({
+  const CustomCard1({
     super.key,
     required this.textharga,
     required this.texttanggal,

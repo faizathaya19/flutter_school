@@ -4,6 +4,8 @@ import '../../constants/const.dart';
 import '../widgets/spppaymentrec_widget.dart';
 import 'home_screen.dart';
 
+
+
 class SPPPaymentrecScreen extends StatefulWidget {
   static const id = 'SPPPaymentrecScreen';
   const SPPPaymentrecScreen({super.key});
@@ -41,7 +43,7 @@ class _SPPPaymentrecScreenState extends State<SPPPaymentrecScreen> {
         children: [
           InkWell(
             onTap: () {},
-            child: CustomCard(
+            child: CustomCard1(
               textharga: 'Rp 4,900,000',
               texttanggal: 'Oktober 2022',
               textstatus: 'Lunas',
@@ -51,7 +53,7 @@ class _SPPPaymentrecScreenState extends State<SPPPaymentrecScreen> {
             onTap: () {
               Navigator.pushReplacementNamed(context, SPPPaymentrecScreen.id);
             },
-            child: CustomCard(
+            child: CustomCard1(
               textharga: 'Rp 4,900,000',
               texttanggal: 'Oktober 2022',
               textstatus: 'Belum Lunas',

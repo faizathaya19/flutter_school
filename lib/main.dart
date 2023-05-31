@@ -21,32 +21,35 @@ void main() async {
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  // Global key
+  static final globalKey = GlobalKey<NavigatorState>();
+
+  const MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    String nis = "";
     return MaterialApp(
+      navigatorKey: globalKey, // Use globalKey as navigatorKey
       debugShowCheckedModeBanner: false,
       title: 'BPIBS Mobile',
       theme: ThemeData.light(),
-      initialRoute: SplashScreen.id,
+      initialRoute: LoginScreen.id,
       routes: {
         SplashScreen.id: (context) => const SplashScreen(),
         LoginScreen.id: (context) => const LoginScreen(),
         ForgetpassScreen.id: (context) => const ForgetpassScreen(),
-        HomeScreen.id: (context) => const HomeScreen(),
-        ProfileScreen.id: (context) => ProfileScreen(nis),
-        SPPPaymentrecScreen.id: (context) => const SPPPaymentrecScreen(),
-        VisitregisformScreen.id: (context) => const VisitregisformScreen(),
-        ChangepassScreen.id: (context) => const ChangepassScreen(),
-        PocketmoneyrecScreen.id: (context) => const PocketmoneyrecScreen(),
-        ArchievpointsrecScreen.id: (context) => const ArchievpointsrecScreen(),
-        PickupregisformScreen.id: (context) => const PickupregisformScreen(),
+        HomeScreen.id: (context) => HomeScreen(),
+        ProfileScreen.id: (context) => ProfileScreen(),
+        SPPPaymentrecScreen.id: (context) => SPPPaymentrecScreen(),
+        VisitregisformScreen.id: (context) => VisitregisformScreen(),
+        ChangepassScreen.id: (context) => ChangepassScreen(),
+        PocketmoneyrecScreen.id: (context) => PocketmoneyrecScreen(),
+        ArchievpointsrecScreen.id: (context) => ArchievpointsrecScreen(),
+        PickupregisformScreen.id: (context) => PickupregisformScreen(),
       },
     );
   }
