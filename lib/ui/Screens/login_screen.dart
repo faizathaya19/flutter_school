@@ -36,7 +36,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     try {
       final response = await http.post(
-        Uri.parse('https://shoesez.000webhostapp.com/login.php'),
+        Uri.parse('http://192.168.1.5/mybpibs-api/api/login.php'),
         body: {
           'nis': nis,
           'password': password,
@@ -52,6 +52,10 @@ class _LoginScreenState extends State<LoginScreen> {
         if (jsonResponse['status'] == 'success') {
           SharedPreferences prefs = await SharedPreferences.getInstance();
           prefs.setString('userProfile', json.encode(jsonResponse['profile']));
+
+          // Menyimpan nis di SharedPreferences
+          prefs.setString('nis', nis);
+
           // Using global navigator key to push
           MyApp.globalKey.currentState!.pushReplacementNamed(HomeScreen.id);
         } else {

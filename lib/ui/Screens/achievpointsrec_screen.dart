@@ -18,6 +18,7 @@ class _ArchievpointsrecScreenState extends State<ArchievpointsrecScreen> {
   List<dynamic> poinPrestasi = [];
   String? namaLengkap;
   int totalPoin = 0;
+  bool isLoading = true;
 
   @override
   void initState() {
@@ -34,7 +35,7 @@ class _ArchievpointsrecScreenState extends State<ArchievpointsrecScreen> {
       String nis = profile['nis'];
       try {
         final response = await http.post(
-          Uri.parse('https://shoesez.000webhostapp.com/poin_prestasi_get.php'),
+          Uri.parse('http://192.168.1.5/mybpibs-api/api/poin_prestasi_get.php'),
           body: {
             'nis': nis,
           },
@@ -47,15 +48,19 @@ class _ArchievpointsrecScreenState extends State<ArchievpointsrecScreen> {
               poinPrestasi = jsonResponse['poinPrestasi'];
               namaLengkap = jsonResponse['poinPrestasi'][0]['nama_lengkap'];
               totalPoin = calculateTotalPoin(jsonResponse['poinPrestasi']);
+              isLoading = false;
             });
           } else {
             showErrorDialog(jsonResponse['message']);
+            isLoading = false;
           }
         } else {
           showErrorDialog('Terjadi masalah pada server.');
+          isLoading = false;
         }
       } catch (e) {
         showErrorDialog('Terjadi masalah pada koneksi.');
+        isLoading = false;
       }
     }
   }
@@ -112,44 +117,49 @@ class _ArchievpointsrecScreenState extends State<ArchievpointsrecScreen> {
         ),
         centerTitle: true,
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(bottom: 10),
-            child: Container(
-              width: MediaQuery.of(context).size.width,
-              height: 100,
-              color: const Color.fromARGB(255, 255, 255, 255).withOpacity(0.5),
-              child: Padding(
-                padding: EdgeInsets.all(15.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      namaLengkap ?? '', // nama lengkap
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+      body: isLoading
+          ? Center(
+              child: CircularProgressIndicator(),
+            )
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: Container(
+                    width: MediaQuery.of(context).size.width,
+                    height: 100,
+                    color: const Color.fromARGB(255, 255, 255, 255)
+                        .withOpacity(0.5),
+                    child: Padding(
+                      padding: EdgeInsets.all(15.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            namaLengkap ?? '', // nama lengkap
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text('Total Poin : $totalPoin'),
+                        ],
                       ),
                     ),
-                    Text('Total Poin : $totalPoin'),
-                  ],
+                  ),
                 ),
-              ),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: poinPrestasi.length,
+                    itemBuilder: (context, index) {
+                      return _buildPoinPrestasiItem(poinPrestasi[index]);
+                    },
+                  ),
+                ),
+              ],
             ),
-          ),
-          Expanded(
-            child: ListView.builder(
-              itemCount: poinPrestasi.length,
-              itemBuilder: (context, index) {
-                return _buildPoinPrestasiItem(poinPrestasi[index]);
-              },
-            ),
-          ),
-        ],
-      ),
     );
   }
 

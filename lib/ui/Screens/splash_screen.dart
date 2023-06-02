@@ -17,7 +17,8 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    Future.delayed(const Duration(seconds: 5)).then((onValue) {
+    Future.delayed(const Duration(seconds: 1, milliseconds: 30))
+        .then((onValue) {
       Navigator.pushReplacementNamed(context, LoginScreen.id);
     });
     // Sembunyikan keyboard jika aktif
