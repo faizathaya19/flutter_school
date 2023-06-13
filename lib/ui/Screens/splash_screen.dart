@@ -2,8 +2,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../constants/const.dart';
-import '../widgets/splash_widget.dart';
-import 'Login_screen.dart';
+
+import 'login_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   static const id = 'SplashScreen';
@@ -17,7 +17,8 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    Future.delayed(const Duration(seconds: 5)).then((onValue) {
+    Future.delayed(const Duration(seconds: 1, milliseconds: 30))
+        .then((onValue) {
       Navigator.pushReplacementNamed(context, LoginScreen.id);
     });
     // Sembunyikan keyboard jika aktif
@@ -34,19 +35,41 @@ class _SplashScreenState extends State<SplashScreen> {
           topbg(),
           bottombg(),
           Center(
-              child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              logo(160, 160),
-              const SizedBox(
-                height: 25,
-              ),
-              textbpibs(size),
-            ],
-          ))
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                logo(160, 160),
+                const SizedBox(
+                  height: 25,
+                ),
+                textbpibs(size),
+              ],
+            ),
+          ),
         ],
       ),
+    );
+  }
+
+  Widget logo(double height_, double width_) {
+    return Image.asset(
+      'assets/Logo.png',
+      width: 238,
+    );
+  }
+
+  Widget textbpibs(Size size) {
+    return const Column(
+      children: [
+        Text(
+          "Bintang Pelajar",
+          style: TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ],
     );
   }
 }

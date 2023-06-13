@@ -5,6 +5,8 @@ import 'package:http/http.dart' as http;
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../../main.dart';
 import 'forgetpass_screen.dart';
 import 'home_screen.dart';
 
@@ -19,128 +21,75 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   TextEditingController nisController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+  bool _isPasswordHidden = true;
+  bool isLoading = false;
 
-void _login() async {
-    String url = 'https://shoesez.000webhostapp.com/login.php';
+  Future<void> loginUser(String nis, String password) async {
+    if (nis.isEmpty || password.isEmpty) {
+      showErrorDialog('Username atau password belum diinput.');
+      return;
+    }
 
-    Map<String, String> headers = {
-      'Content-Type': 'application/x-www-form-urlencoded'
-    };
-
-    Map<String, String> body = {
-      'nis': nisController.text,
-      'password': passwordController.text,
-    };
-
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) {
-        return AlertDialog(
-          content: Row(
-            children: [
-              CircularProgressIndicator(),
-              SizedBox(width: 20),
-              Text('Logging in...'),
-            ],
-          ),
-        );
-      },
-    );
+    setState(() {
+      isLoading = true;
+    });
 
     try {
-      var response =
-          await http.post(Uri.parse(url), headers: headers, body: body);
-
-      if (response.statusCode == 200) {
-        var data = jsonDecode(response.body);
-
-        if (data['status'] == 'success') {
-          Navigator.pop(context); // Close the loading dialog
-
-          showDialog(
-            context: context,
-            barrierDismissible: false,
-            builder: (context) {
-              return AlertDialog(
-                content: Text('Login successful'),
-              );
-            },
-          );
-
-          // Delay for 3 seconds
-          await Future.delayed(Duration(seconds: 3));
-
-          Navigator.pop(context); // Close the "Login successful" dialog
-          Navigator.pushReplacementNamed(context, HomeScreen.id);
-        } else {
-          Navigator.pop(context); // Close the loading dialog
-
-          showDialog(
-            context: context,
-            builder: (context) {
-              return AlertDialog(
-                title: Text('Error'),
-                content: Text(data['message']),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: Text('OK'),
-                  ),
-                ],
-              );
-            },
-          );
-        }
-      } else {
-        Navigator.pop(context); // Close the loading dialog
-
-        showDialog(
-          context: context,
-          builder: (context) {
-            return AlertDialog(
-              title: Text('Error'),
-              content: Text(
-                  'Failed to connect to the server. Please try again later.'),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: Text('OK'),
-                ),
-              ],
-            );
-          },
-        );
-        print('HTTP Error: ${response.statusCode}');
-      }
-    } catch (e) {
-      Navigator.pop(context); // Close the loading dialog
-
-      showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: Text('Error'),
-            content: Text('An error occurred. Please try again later.'),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: Text('OK'),
-              ),
-            ],
-          );
+      final response = await http.post(
+        Uri.parse('http://192.168.1.5/mybpibs-api/api/api.php'),
+        body: {
+          'action': 'login',
+          'nis': nis,
+          'password': password,
         },
       );
-      print('Exception: $e');
+
+      setState(() {
+        isLoading = false;
+      });
+
+      if (response.statusCode == 200) {
+        var jsonResponse = jsonDecode(response.body);
+        if (jsonResponse['status'] == 'success') {
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          prefs.setString('userProfile', json.encode(jsonResponse['profile']));
+
+          // Menyimpan nis di SharedPreferences
+          prefs.setString('nis', nis);
+
+          // Using global navigator key to push
+          MyApp.globalKey.currentState!.pushReplacementNamed(HomeScreen.id);
+        } else {
+          showErrorDialog(jsonResponse['message']);
+        }
+      } else {
+        showErrorDialog('Terjadi masalah pada server.');
+      }
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+      showErrorDialog('Terjadi masalah pada koneksi.');
     }
   }
 
+  void showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('Error'),
+        content: Text(message),
+        actions: <Widget>[
+          TextButton(
+            child: Text('Okay'),
+            onPressed: () {
+              Navigator.of(ctx).pop();
+            },
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -236,8 +185,7 @@ void _login() async {
     );
   }
 
-  Widget nisTextField(
-      Size size, TextEditingController nisController) {
+  Widget nisTextField(Size size, TextEditingController nisController) {
     return Container(
       alignment: Alignment.center,
       height: size.height / 15,
@@ -312,7 +260,7 @@ void _login() async {
                 controller: passwordController,
                 maxLines: 1,
                 cursorColor: const Color.fromARGB(179, 0, 0, 0),
-                obscureText: true,
+                obscureText: _isPasswordHidden,
                 style: GoogleFonts.inter(
                   fontSize: 14.0,
                   color: const Color.fromARGB(179, 0, 0, 0),
@@ -327,6 +275,19 @@ void _login() async {
                     ),
                     border: InputBorder.none),
               ),
+            ),
+            IconButton(
+              icon: Icon(
+                // Based on passwordVisible state choose the icon
+                _isPasswordHidden ? Icons.visibility_off : Icons.visibility,
+                color: Theme.of(context).primaryColorDark,
+              ),
+              onPressed: () {
+                // Update the state i.e. toogle the state of passwordVisible variable
+                setState(() {
+                  _isPasswordHidden = !_isPasswordHidden;
+                });
+              },
             ),
           ],
         ),
@@ -362,15 +323,21 @@ void _login() async {
         color: buttonColor1,
       ),
       child: TextButton(
-        onPressed: _login,
-        child: const Text(
-          'Sign In',
-          style: TextStyle(
-            fontSize: 18,
-            color: Colors.white,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
+        onPressed: isLoading
+            ? null
+            : () {
+                loginUser(nisController.text, passwordController.text);
+              },
+        child: isLoading
+            ? CircularProgressIndicator()
+            : const Text(
+                'Sign In',
+                style: TextStyle(
+                  fontSize: 18,
+                  color: Colors.white,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
       ),
     );
   }
