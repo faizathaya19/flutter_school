@@ -21,7 +21,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   TextEditingController nisController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
-
+  bool _isPasswordHidden = true;
   bool isLoading = false;
 
   Future<void> loginUser(String nis, String password) async {
@@ -36,8 +36,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
     try {
       final response = await http.post(
-        Uri.parse('http://192.168.1.5/mybpibs-api/api/login.php'),
+        Uri.parse('http://192.168.1.5/mybpibs-api/api/api.php'),
         body: {
+          'action': 'login',
           'nis': nis,
           'password': password,
         },
@@ -259,7 +260,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 controller: passwordController,
                 maxLines: 1,
                 cursorColor: const Color.fromARGB(179, 0, 0, 0),
-                obscureText: true,
+                obscureText: _isPasswordHidden,
                 style: GoogleFonts.inter(
                   fontSize: 14.0,
                   color: const Color.fromARGB(179, 0, 0, 0),
@@ -274,6 +275,19 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     border: InputBorder.none),
               ),
+            ),
+            IconButton(
+              icon: Icon(
+                // Based on passwordVisible state choose the icon
+                _isPasswordHidden ? Icons.visibility_off : Icons.visibility,
+                color: Theme.of(context).primaryColorDark,
+              ),
+              onPressed: () {
+                // Update the state i.e. toogle the state of passwordVisible variable
+                setState(() {
+                  _isPasswordHidden = !_isPasswordHidden;
+                });
+              },
             ),
           ],
         ),

@@ -36,10 +36,9 @@ class _PocketmoneyrecScreenState extends State<PocketmoneyrecScreen> {
       String nis = profile['nis'];
       try {
         final response = await http.post(
-          Uri.parse('http://192.168.1.5/mybpibs-api/api/uang_saku_get.php'),
-          body: {
-            'nis': nis,
-          },
+          Uri.parse(
+              'http://192.168.1.5/mybpibs-api/api/api.php'), // Ganti URL dengan alamat api.php
+          body: {'action': 'uang_saku_get', 'nis': nis},
         );
 
         if (response.statusCode == 200) {
@@ -76,7 +75,7 @@ class _PocketmoneyrecScreenState extends State<PocketmoneyrecScreen> {
     return total;
   }
 
- void showErrorDialog(String message) {
+  void showErrorDialog(String message) {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -94,7 +93,6 @@ class _PocketmoneyrecScreenState extends State<PocketmoneyrecScreen> {
       ),
     );
   }
-
 
   @override
   Widget build(BuildContext context) {

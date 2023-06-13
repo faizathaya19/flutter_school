@@ -2,12 +2,14 @@ import 'package:bpibs/ui/Screens/achievpointsrec_screen.dart';
 import 'package:bpibs/ui/Screens/changepass_screen.dart';
 import 'package:bpibs/ui/Screens/forgetpass_screen.dart';
 import 'package:bpibs/ui/Screens/home_screen.dart';
+import 'package:bpibs/ui/Screens/login_screen.dart';
 import 'package:bpibs/ui/Screens/pickupregisform_screen.dart';
 import 'package:bpibs/ui/Screens/pocketmoneyrec_screen.dart';
 import 'package:bpibs/ui/Screens/profile_screen.dart';
 import 'package:bpibs/ui/Screens/splash_screen.dart';
-import 'package:bpibs/ui/Screens/Login_screen.dart';
+
 import 'package:bpibs/ui/Screens/spppaymentrec_screen.dart';
+import 'package:bpibs/ui/Screens/suggestionsandcritics_screen.dart';
 import 'package:bpibs/ui/Screens/visitregisform_screen.dart';
 
 import 'package:flutter/material.dart';
@@ -50,6 +52,7 @@ class MyApp extends StatelessWidget {
         PocketmoneyrecScreen.id: (context) => PocketmoneyrecScreen(),
         ArchievpointsrecScreen.id: (context) => ArchievpointsrecScreen(),
         PickupregisformScreen.id: (context) => PickupregisformScreen(),
+        SuggestionsAndCriticsScreen.id: (context) => SuggestionsAndCriticsScreen(),
       },
     );
   }

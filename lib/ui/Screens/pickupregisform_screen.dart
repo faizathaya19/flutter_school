@@ -43,12 +43,11 @@ class _PickupregisformScreenState extends State<PickupregisformScreen> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       nis = prefs.getString('nis');
 
-     String url = 
-          'http://192.168.1.5/mybpibs-api/api/penjemputan_input.php';
+      String url = 'http://192.168.1.5/mybpibs-api/api/api.php';
 
-          var request = http.MultipartRequest('POST', Uri.parse(url));
+      var request = http.MultipartRequest('POST', Uri.parse(url));
 
-
+      request.fields['action'] = 'penjemputan_input';
       request.fields['nis'] = nis!;
       request.fields['nama_penjemput'] = namaPenjemputController.text;
       request.fields['tanggal_lahir'] = tanggalLahirController.text;
@@ -497,8 +496,8 @@ class _PickupregisformScreenState extends State<PickupregisformScreen> {
             138,
             134,
             134,
-          ),
-          width: 1.0,
+          ), // Change the color of the border here
+          width: 1.0, // Change the width of the border here
         ),
         color: inputColor1,
       ),

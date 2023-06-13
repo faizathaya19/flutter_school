@@ -1,16 +1,15 @@
-import 'dart:convert';
-
-import 'package:bpibs/ui/Screens/login_screen.dart';
 import 'package:bpibs/ui/Screens/pickupregisform_screen.dart';
 import 'package:bpibs/ui/Screens/pocketmoneyrec_screen.dart';
 import 'package:bpibs/ui/Screens/profile_screen.dart';
 import 'package:bpibs/ui/Screens/spppaymentrec_screen.dart';
+import 'package:bpibs/ui/Screens/suggestionsandcritics_screen.dart';
 import 'package:bpibs/ui/Screens/visitregisform_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:bpibs/constants/const.dart';
 
 import 'achievpointsrec_screen.dart';
 import 'changepass_screen.dart';
+import 'login_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   static const id = 'HomeScreen';
@@ -375,17 +374,24 @@ class CustomCard extends StatelessWidget {
         child: Card(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           elevation: 4,
+          color: Colors.green, // Ubah warna latar belakang Card menjadi hijau
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Image.asset(
-                imagePath,
-                height: 80,
+              CircleAvatar(
+                radius: 40,
+                backgroundColor: Colors
+                    .white, // Ubah warna latar belakang lingkaran menjadi putih
+                child: Image.asset(
+                  imagePath,
+                  width: 55, // Ubah lebar aset menjadi 60
+                  height: 55, // Ubah tinggi aset menjadi 60
+                ),
               ),
               const SizedBox(height: 12),
               Text(
                 text,
-                style: basicTextStyle.copyWith(
+                style: primaryTextStyle.copyWith(
                   fontSize: 13,
                   fontWeight: bold,
                 ),
@@ -428,7 +434,8 @@ Widget drawerWidget(BuildContext context) {
           leading: Icon(Icons.lightbulb),
           title: Text('Suggestions and Critics'),
           onTap: () {
-            // TODO: Do something
+            Navigator.pushReplacementNamed(
+                context, SuggestionsAndCriticsScreen.id);
           },
         ),
         ListTile(

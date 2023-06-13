@@ -35,8 +35,9 @@ class _ArchievpointsrecScreenState extends State<ArchievpointsrecScreen> {
       String nis = profile['nis'];
       try {
         final response = await http.post(
-          Uri.parse('http://192.168.1.5/mybpibs-api/api/poin_prestasi_get.php'),
+          Uri.parse('http://192.168.1.5/mybpibs-api/api/api.php'),
           body: {
+            'action': 'poin_prestasi_get',
             'nis': nis,
           },
         );
