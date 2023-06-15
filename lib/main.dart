@@ -1,5 +1,6 @@
 import 'package:bpibs/ui/Screens/achievpointsrec_screen.dart';
 import 'package:bpibs/ui/Screens/changepass_screen.dart';
+import 'package:bpibs/ui/Screens/criticsform_screen.dart';
 import 'package:bpibs/ui/Screens/forgetpass_screen.dart';
 import 'package:bpibs/ui/Screens/home_screen.dart';
 import 'package:bpibs/ui/Screens/login_screen.dart';
@@ -52,7 +53,9 @@ class MyApp extends StatelessWidget {
         PocketmoneyrecScreen.id: (context) => PocketmoneyrecScreen(),
         ArchievpointsrecScreen.id: (context) => ArchievpointsrecScreen(),
         PickupregisformScreen.id: (context) => PickupregisformScreen(),
-        SuggestionsAndCriticsScreen.id: (context) => SuggestionsAndCriticsScreen(),
+        SuggestionsAndCriticsScreen.id: (context) =>
+            SuggestionsAndCriticsScreen(),
+        CriticsformScreen.id: (context) => CriticsformScreen(),
       },
     );
   }
