@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../constants/const.dart';
+import 'criticsform_screen.dart';
 import 'home_screen.dart';
 
 class SuggestionsAndCriticsScreen extends StatefulWidget {
@@ -88,8 +89,7 @@ class _SuggestionsAndCriticsScreenState
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // Tindakan saat tombol tambah ditekan
-          // Misalnya: Navigasi ke halaman tambah tiket
+          Navigator.popAndPushNamed(context, CriticsformScreen.id);
         },
         child: Icon(Icons.add),
         backgroundColor: Colors.blue,
