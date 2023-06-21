@@ -70,236 +70,244 @@ class _CriticsformScreenState extends State<CriticsformScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Padding(
-              padding: const EdgeInsets.only(bottom: 10),
-              child: Container(
-                width: MediaQuery.of(context).size.width,
-                height: 100,
-                color:
-                    const Color.fromARGB(255, 255, 255, 255).withOpacity(0.5),
-                child: const Padding(
-                  padding: EdgeInsets.all(15.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Faiz Athaya Ramadhan',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text('Periode Kunjungan Ahad, 14 Mei 2023'),
-                    ],
-                  ),
-                ),
-              ),
-            ),
             Container(
-              width: MediaQuery.of(context).size.width,
+              width: double.infinity,
+              margin: EdgeInsets.all(20),
+              padding: EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: backgroundCard1,
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: Padding(
-                padding: const EdgeInsets.all(13.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Lokasi Kunjungan',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Container(
-                            width: size.width,
-                            height: 50,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10.0),
-                              border: Border.all(
-                                color: Colors.grey,
-                                width: 1.0,
-                              ),
-                              color: Colors.white,
-                            ),
-                            child: Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 16.0),
-                              child: DropdownButton<String>(
-                                value: selectedLocation,
-                                onChanged: (value) {
-                                  setState(() {
-                                    selectedLocation = value;
-                                    selectedTime = null;
-                                  });
-                                },
-                                underline: const SizedBox(),
-                                isExpanded: true,
-                                items: categoryOptions.keys
-                                    .map<DropdownMenuItem<String>>(
-                                  (String category) {
-                                    return DropdownMenuItem<String>(
-                                      value: category,
-                                      child: Text(category),
-                                    );
-                                  },
-                                ).toList(),
-                                hint: const Text('Pilih lokasi kunjungan'),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          const Text(
-                            'Waktu Kunjungan',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          selectedLocation != null
-                              ? Container(
-                                  width: size.width,
-                                  height: 50,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10.0),
-                                    border: Border.all(
-                                      color: Colors.grey,
-                                      width: 1.0,
-                                    ),
-                                    color: Colors.white,
-                                  ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 16.0),
-                                    child: DropdownButton<String>(
-                                      value: selectedTime,
-                                      onChanged: (value) {
-                                        setState(() {
-                                          selectedTime = value;
-                                        });
-                                      },
-                                      underline: const SizedBox(),
-                                      isExpanded: true,
-                                      items: categoryOptions[selectedLocation!]!
-                                          .map<DropdownMenuItem<String>>(
-                                        (String category) {
-                                          return DropdownMenuItem<String>(
-                                            value: category,
-                                            child: Text(category),
-                                          );
-                                        },
-                                      ).toList(),
-                                      hint: const Text('Pilih waktu kunjungan'),
-                                    ),
-                                  ),
-                                )
-                              : const SizedBox(),
-                          const SizedBox(height: 16),
-                          const Text(
-                            'No Whatsapp',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Container(
-                            width: size.width,
-                            height: 50,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10.0),
-                              border: Border.all(
-                                color: Colors.grey,
-                                width: 1.0,
-                              ),
-                              color: Colors.white,
-                            ),
-                            child: Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 16.0),
-                              child: TextField(
-                                controller: whatsappController,
-                                keyboardType: TextInputType.number,
-                                inputFormatters: <TextInputFormatter>[
-                                  FilteringTextInputFormatter.digitsOnly
-                                ],
-                                style: const TextStyle(
-                                  fontSize: 14.0,
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                                decoration: const InputDecoration(
-                                  hintText: 'Masukkan No Whatsapp',
-                                  hintStyle: TextStyle(
-                                    fontSize: 14.0,
-                                    color: Colors.grey,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                  border: InputBorder.none,
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          const Text(
-                            'Alamat',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Container(
-                            width: size.width,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10.0),
-                              border: Border.all(
-                                color: Colors.grey,
-                                width: 1.0,
-                              ),
-                              color: Colors.white,
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16.0,
-                                vertical: 8.0,
-                              ),
-                              child: TextField(
-                                maxLines: null,
-                                keyboardType: TextInputType.multiline,
-                                style: const TextStyle(
-                                  fontSize: 14.0,
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                                decoration: const InputDecoration(
-                                  hintText: 'Masukkan Alamat',
-                                  hintStyle: TextStyle(
-                                    fontSize: 14.0,
-                                    color: Colors.grey,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                  border: InputBorder.none,
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          Center(child: kirimButton(size)),
-                        ],
-                      ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Faiz athaya ramadhan',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
                     ),
-                  ],
-                ),
+                  ),
+                  SizedBox(height: 10),
+                  Text('Periode kunjungan : Ahad,14 mei 2024'),
+                ],
+              ),
+            ),
+            Container(
+              width: double.infinity,
+              margin: EdgeInsets.all(20),
+              padding: EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: backgroundCard1,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Lokasi Kunjungan',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      buildDropdownButton(
+                        value: selectedLocation,
+                        onChanged: (value) {
+                          setState(() {
+                            selectedLocation = value;
+                            selectedTime = null;
+                          });
+                        },
+                        items:
+                            categoryOptions.keys.map<DropdownMenuItem<String>>(
+                          (String category) {
+                            return DropdownMenuItem<String>(
+                              value: category,
+                              child: Text(category),
+                            );
+                          },
+                        ).toList(),
+                        hintText: 'Pilih lokasi kunjungan',
+                      ),
+                      const SizedBox(height: 16),
+                      const Text(
+                        'Waktu Kunjungan',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      selectedLocation != null
+                          ? buildDropdownButton(
+                              value: selectedTime,
+                              onChanged: (value) {
+                                setState(() {
+                                  selectedTime = value;
+                                });
+                              },
+                              items: categoryOptions[selectedLocation!]!
+                                  .map<DropdownMenuItem<String>>(
+                                (String category) {
+                                  return DropdownMenuItem<String>(
+                                    value: category,
+                                    child: Text(category),
+                                  );
+                                },
+                              ).toList(),
+                              hintText: 'Pilih waktu kunjungan',
+                            )
+                          : const SizedBox(),
+                      const SizedBox(height: 16),
+                      const Text(
+                        'No Whatsapp',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      buildTextField(
+                        controller: whatsappController,
+                        keyboardType: TextInputType.number,
+                        inputFormatters: <TextInputFormatter>[
+                          FilteringTextInputFormatter.digitsOnly
+                        ],
+                        hintText: 'Masukkan No Whatsapp',
+                      ),
+                      const SizedBox(height: 16),
+                      const Text(
+                        'Alamat',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      buildMultilineTextField(
+                        keyboardType: TextInputType.multiline,
+                        hintText: 'Masukkan Alamat',
+                      ),
+                      const SizedBox(height: 16),
+                      Center(child: kirimButton(size)),
+                    ],
+                  ),
+                ],
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget buildDropdownButton({
+    required String? value,
+    required Function(String?) onChanged,
+    required List<DropdownMenuItem<String>> items,
+    required String hintText,
+  }) {
+    return Container(
+      width: double.infinity,
+      height: 50,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10.0),
+        border: Border.all(
+          color: Colors.grey,
+          width: 1.0,
+        ),
+        color: Colors.white,
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        child: DropdownButton<String>(
+          value: value,
+          onChanged: onChanged,
+          underline: const SizedBox(),
+          isExpanded: true,
+          items: items,
+          hint: Text(hintText),
+        ),
+      ),
+    );
+  }
+
+  Widget buildTextField({
+    required TextEditingController controller,
+    required TextInputType keyboardType,
+    required List<TextInputFormatter> inputFormatters,
+    required String hintText,
+  }) {
+    return Container(
+      width: double.infinity,
+      height: 50,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10.0),
+        border: Border.all(
+          color: Colors.grey,
+          width: 1.0,
+        ),
+        color: Colors.white,
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        child: TextField(
+          controller: controller,
+          keyboardType: keyboardType,
+          inputFormatters: inputFormatters,
+          style: const TextStyle(
+            fontSize: 14.0,
+            color: Colors.black,
+            fontWeight: FontWeight.w500,
+          ),
+          decoration: InputDecoration(
+            hintText: hintText,
+            hintStyle: const TextStyle(
+              fontSize: 14.0,
+              color: Colors.grey,
+              fontWeight: FontWeight.w500,
+            ),
+            border: InputBorder.none,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget buildMultilineTextField({
+    required TextInputType keyboardType,
+    required String hintText,
+  }) {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10.0),
+        border: Border.all(
+          color: Colors.grey,
+          width: 1.0,
+        ),
+        color: Colors.white,
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+        child: TextField(
+          maxLines: null,
+          keyboardType: keyboardType,
+          style: const TextStyle(
+            fontSize: 14.0,
+            color: Colors.black,
+            fontWeight: FontWeight.w500,
+          ),
+          decoration: InputDecoration(
+            hintText: hintText,
+            hintStyle: const TextStyle(
+              fontSize: 14.0,
+              color: Colors.grey,
+              fontWeight: FontWeight.w500,
+            ),
+            border: InputBorder.none,
+          ),
         ),
       ),
     );

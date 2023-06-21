@@ -34,7 +34,7 @@ class _SPPPaymentrecScreenState extends State<SPPPaymentrecScreen> {
 
         final response = await http.post(
           Uri.parse(
-              'http://192.168.1.5/mybpibs-api/api/api.php'), // Ganti URL dengan alamat api.php
+              'http://192.168.1.2/mybpibs-api/api/api.php'), // Ganti URL dengan alamat api.php
           body: {'action': 'pembayaran_spp_get', 'nis': nis},
         );
 
@@ -142,34 +142,6 @@ class _SPPPaymentrecScreenState extends State<SPPPaymentrecScreen> {
     int biaya =
         int.parse(data['biaya']); // Mengkonversi harga menjadi bilangan bulat
 
-    return data['status'] == 'Lunas'
-        ? CustomCard1(
-            textharga: currencyFormat.format(biaya),
-            texttanggal: '${data['bulan']} $adjustedYearItem',
-            textstatus: data['status'],
-          )
-        : CustomCard2(
-            textharga: currencyFormat.format(biaya),
-            texttanggal: '${data['bulan']} $adjustedYearItem',
-            textstatus: data['status'],
-          );
-  }
-}
-
-class CustomCard1 extends StatelessWidget {
-  final String textharga;
-  final String texttanggal;
-  final String textstatus;
-
-  const CustomCard1({
-    super.key,
-    required this.textharga,
-    required this.texttanggal,
-    required this.textstatus,
-  });
-
-  @override
-  Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(15.0),
       child: Container(
@@ -187,14 +159,14 @@ class CustomCard1 extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    textharga,
+                    currencyFormat.format(biaya),
                     style: basicTextStyle.copyWith(
                       fontSize: 15,
                       fontWeight: bold,
                     ),
                   ),
                   Text(
-                    texttanggal,
+                    '${data['bulan']} $adjustedYearItem',
                     style: basicTextStyle.copyWith(
                       fontSize: 13,
                       fontWeight: light,
@@ -204,9 +176,11 @@ class CustomCard1 extends StatelessWidget {
               ),
               const SizedBox(height: 30),
               Container(
-                decoration: const BoxDecoration(
-                  color: Color.fromARGB(255, 16, 196, 16),
-                  borderRadius: BorderRadius.only(
+                decoration: BoxDecoration(
+                  color: data['status'] == 'Lunas'
+                      ? const Color.fromARGB(255, 16, 196, 16)
+                      : const Color.fromARGB(255, 219, 31, 31),
+                  borderRadius: const BorderRadius.only(
                     bottomRight: Radius.circular(8),
                     bottomLeft: Radius.circular(8),
                   ),
@@ -218,87 +192,7 @@ class CustomCard1 extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        textstatus,
-                        style: basicTextStyle.copyWith(
-                          fontSize: 15,
-                          fontWeight: bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              )
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class CustomCard2 extends StatelessWidget {
-  final String textharga;
-  final String texttanggal;
-  final String textstatus;
-
-  const CustomCard2({
-    super.key,
-    required this.textharga,
-    required this.texttanggal,
-    required this.textstatus,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(15.0),
-      child: Container(
-        height: 160,
-        width: 160,
-        child: Card(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-          elevation: 4,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    textharga,
-                    style: basicTextStyle.copyWith(
-                      fontSize: 15,
-                      fontWeight: bold,
-                    ),
-                  ),
-                  Text(
-                    texttanggal,
-                    style: basicTextStyle.copyWith(
-                      fontSize: 13,
-                      fontWeight: light,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 30),
-              Container(
-                decoration: const BoxDecoration(
-                  color: Color.fromARGB(255, 219, 31, 31),
-                  borderRadius: BorderRadius.only(
-                    bottomRight: Radius.circular(8),
-                    bottomLeft: Radius.circular(8),
-                  ),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        textstatus,
+                        data['status'],
                         style: basicTextStyle.copyWith(
                           fontSize: 15,
                           fontWeight: bold,
