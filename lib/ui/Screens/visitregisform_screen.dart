@@ -48,7 +48,7 @@ class _VisitregisformScreenState extends State<VisitregisformScreen> {
         String nis = profile['nis'];
 
         final response = await http.post(
-          Uri.parse('http://192.168.1.5/mybpibs-api/api/api.php'),
+          Uri.parse('http://192.168.1.2/mybpibs-api/api/api.php'),
           body: {
             'action': 'penjengukan_input',
             'nis': nis,
@@ -117,7 +117,7 @@ class _VisitregisformScreenState extends State<VisitregisformScreen> {
       appBar: AppBar(
         backgroundColor: backgroundColor1,
         elevation: 0,
-        toolbarHeight: 100, // Atur tinggi khusus untuk toolbar
+        toolbarHeight: 100,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_outlined),
           onPressed: () {
@@ -135,196 +135,168 @@ class _VisitregisformScreenState extends State<VisitregisformScreen> {
         centerTitle: true,
       ),
       body: SingleChildScrollView(
-        // Tambahkan widget SingleChildScrollView di sekitar konten formulir
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Padding(
-              padding: const EdgeInsets.only(bottom: 10),
-              child: Container(
-                width: MediaQuery.of(context).size.width,
-                height: 100,
-                color:
-                    const Color.fromARGB(255, 255, 255, 255).withOpacity(0.5),
-                child: const Padding(
-                  padding: EdgeInsets.all(15.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Faiz Athaya Ramadhan',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text('Periode Kunjungan Ahad, 14 Mei 2023'),
-                    ],
+            Container(
+              width: double.infinity,
+              margin: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: backgroundCard1,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Faiz athaya ramadhan',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
+                  SizedBox(height: 10),
+                  Text('Periode kunjungan : Ahad,14 mei 2024'),
+                ],
               ),
             ),
             Container(
-              width: MediaQuery.of(context).size.width,
+              width: double.infinity,
+              margin: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: backgroundCard1,
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Padding(
-                padding: const EdgeInsets.all(13.0),
+                padding: const EdgeInsets.all(16.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Lokasi Kunjungan',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Container(
-                            width: size.width,
-                            height: 50,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10.0),
-                              border: Border.all(
-                                color: Colors.grey,
-                                width: 1.0,
-                              ),
-                              color: Colors.white,
-                            ),
-                            child: Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 16.0),
-                              child: DropdownButton<String>(
-                                value: selectedLocation,
-                                onChanged: (value) {
-                                  setState(() {
-                                    selectedLocation = value;
-                                    selectedTime = null;
-                                  });
-                                },
-                                underline: const SizedBox(),
-                                isExpanded: true,
-                                items: locations.map<DropdownMenuItem<String>>(
-                                  (String location) {
-                                    return DropdownMenuItem<String>(
-                                      value: location,
-                                      child: Text(location),
-                                    );
-                                  },
-                                ).toList(),
-                                hint: const Text('Pilih lokasi kunjungan'),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          const Text(
-                            'Waktu Kunjungan',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          selectedLocation != null
-                              ? Container(
-                                  width: size.width,
-                                  height: 50,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10.0),
-                                    border: Border.all(
-                                      color: Colors.grey,
-                                      width: 1.0,
-                                    ),
-                                    color: Colors.white,
-                                  ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 16.0),
-                                    child: DropdownButton<String>(
-                                      value: selectedTime,
-                                      onChanged: (value) {
-                                        setState(() {
-                                          selectedTime = value;
-                                        });
-                                      },
-                                      underline: const SizedBox(),
-                                      isExpanded: true,
-                                      items: timeOptions[selectedLocation!]!
-                                          .map<DropdownMenuItem<String>>(
-                                        (String time) {
-                                          return DropdownMenuItem<String>(
-                                            value: time,
-                                            child: Text(time),
-                                          );
-                                        },
-                                      ).toList(),
-                                      hint: const Text('Pilih waktu kunjungan'),
-                                    ),
-                                  ),
-                                )
-                              : const SizedBox(),
-                          const SizedBox(height: 16),
-                          const Text(
-                            'No Whatsapp',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Container(
-                            width: size.width,
-                            height: 50,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10.0),
-                              border: Border.all(
-                                color: Colors.grey,
-                                width: 1.0,
-                              ),
-                              color: Colors.white,
-                            ),
-                            child: Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 16.0),
-                              child: TextField(
-                                controller: whatsappController,
-                                keyboardType: TextInputType.number,
-                                inputFormatters: <TextInputFormatter>[
-                                  FilteringTextInputFormatter.digitsOnly
-                                ],
-                                style: const TextStyle(
-                                  fontSize: 14.0,
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                                decoration: const InputDecoration(
-                                  hintText: 'Masukkan No Whatsapp',
-                                  hintStyle: TextStyle(
-                                    fontSize: 14.0,
-                                    color: Colors.grey,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                  border: InputBorder.none,
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          Center(child: kirimButton(size)),
-                        ],
+                    const Text(
+                      'Lokasi Kunjungan',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
+                    const SizedBox(height: 10),
+                    dropdownWidget(
+                      items: locations,
+                      selectedValue: selectedLocation,
+                      onChanged: (value) {
+                        setState(() {
+                          selectedLocation = value;
+                          selectedTime = null;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 20),
+                    const Text(
+                      'Waktu Kunjungan',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    if (selectedLocation != null)
+                      dropdownWidget(
+                        items: timeOptions[selectedLocation!]!,
+                        selectedValue: selectedTime,
+                        onChanged: (value) {
+                          setState(() {
+                            selectedTime = value;
+                          });
+                        },
+                      ),
+                    const SizedBox(height: 20),
+                    const Text(
+                      'No Whatsapp',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Container(
+                      width: size.width,
+                      height: 50,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10.0),
+                        border: Border.all(
+                          color: Colors.grey,
+                          width: 1.0,
+                        ),
+                        color: Colors.white,
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: TextField(
+                          controller: whatsappController,
+                          keyboardType: TextInputType.number,
+                          inputFormatters: <TextInputFormatter>[
+                            FilteringTextInputFormatter.digitsOnly
+                          ],
+                          style: const TextStyle(
+                            fontSize: 14.0,
+                            color: Colors.black,
+                            fontWeight: FontWeight.w500,
+                          ),
+                          decoration: const InputDecoration(
+                            hintText: 'Masukkan No Whatsapp',
+                            hintStyle: TextStyle(
+                              fontSize: 14.0,
+                              color: Colors.grey,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            border: InputBorder.none,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 30),
+                    Center(child: kirimButton(size)),
                   ],
                 ),
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget dropdownWidget({
+    required List<String> items,
+    required String? selectedValue,
+    required Function(String?) onChanged,
+  }) {
+    return Container(
+      width: double.infinity,
+      height: 50,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10.0),
+        border: Border.all(
+          color: Colors.grey,
+          width: 1.0,
+        ),
+        color: Colors.white,
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<String>(
+          value: selectedValue,
+          onChanged: onChanged,
+          isExpanded: true,
+          items: items.map<DropdownMenuItem<String>>((String item) {
+            return DropdownMenuItem<String>(
+              value: item,
+              child: Text(item),
+            );
+          }).toList(),
+          hint: const Text('Pilih'),
         ),
       ),
     );

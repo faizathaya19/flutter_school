@@ -3,12 +3,13 @@ import 'package:bpibs/ui/Screens/changepass_screen.dart';
 import 'package:bpibs/ui/Screens/criticsform_screen.dart';
 import 'package:bpibs/ui/Screens/forgetpass_screen.dart';
 import 'package:bpibs/ui/Screens/home_screen.dart';
+import 'package:bpibs/ui/Screens/information_screen.dart';
 import 'package:bpibs/ui/Screens/login_screen.dart';
 import 'package:bpibs/ui/Screens/pickupregisform_screen.dart';
 import 'package:bpibs/ui/Screens/pocketmoneyrec_screen.dart';
 import 'package:bpibs/ui/Screens/profile_screen.dart';
+import 'package:bpibs/ui/Screens/raports_screen.dart';
 import 'package:bpibs/ui/Screens/splash_screen.dart';
-
 import 'package:bpibs/ui/Screens/spppaymentrec_screen.dart';
 import 'package:bpibs/ui/Screens/suggestionsandcritics_screen.dart';
 import 'package:bpibs/ui/Screens/visitregisform_screen.dart';
@@ -56,6 +57,8 @@ class MyApp extends StatelessWidget {
         SuggestionsAndCriticsScreen.id: (context) =>
             SuggestionsAndCriticsScreen(),
         CriticsformScreen.id: (context) => CriticsformScreen(),
+        InformationScreen.id: (context) => InformationScreen(),
+        RaportsScreen.id: (context) => RaportsScreen(),
       },
     );
   }

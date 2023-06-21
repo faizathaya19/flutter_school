@@ -35,7 +35,7 @@ class _ArchievpointsrecScreenState extends State<ArchievpointsrecScreen> {
       String nis = profile['nis'];
       try {
         final response = await http.post(
-          Uri.parse('http://192.168.1.5/mybpibs-api/api/api.php'),
+          Uri.parse('http://192.168.1.2/mybpibs-api/api/api.php'),
           body: {
             'action': 'poin_prestasi_get',
             'nis': nis,
@@ -80,11 +80,11 @@ class _ArchievpointsrecScreenState extends State<ArchievpointsrecScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text('Error'),
+        title: const Text('Error'),
         content: Text(message),
         actions: <Widget>[
           TextButton(
-            child: Text('Okay'),
+            child: const Text('Okay'),
             onPressed: () {
               Navigator.of(ctx).pop();
             },
@@ -119,7 +119,7 @@ class _ArchievpointsrecScreenState extends State<ArchievpointsrecScreen> {
         centerTitle: true,
       ),
       body: isLoading
-          ? Center(
+          ? const Center(
               child: CircularProgressIndicator(),
             )
           : Column(
@@ -133,14 +133,14 @@ class _ArchievpointsrecScreenState extends State<ArchievpointsrecScreen> {
                     color: const Color.fromARGB(255, 255, 255, 255)
                         .withOpacity(0.5),
                     child: Padding(
-                      padding: EdgeInsets.all(15.0),
+                      padding: const EdgeInsets.all(15.0),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
                             namaLengkap ?? '', // nama lengkap
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
                             ),
@@ -182,12 +182,12 @@ class _ArchievpointsrecScreenState extends State<ArchievpointsrecScreen> {
             children: [
               Text(
                 poin['keterangan'],
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [

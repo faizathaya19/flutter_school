@@ -23,7 +23,7 @@ class _SuggestionsAndCriticsScreenState
       'no tiket': '12345',
       'status': 'Open',
       'pesan': 'Pesan 1',
-    },
+    }, 
     {
       'divisi': 'Divisi B',
       'kategori': 'Kategori 2',

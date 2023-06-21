@@ -47,7 +47,7 @@ class _ChangepassScreenState extends State<ChangepassScreen> {
         String nis = profile['nis'];
 
         final response = await http.post(
-          Uri.parse('http://192.168.1.5/mybpibs-api/api/api.php'),
+          Uri.parse('http://192.168.1.2/mybpibs-api/api/api.php'),
           body: {
             'action': 'update_password',
             'nis': nis,
@@ -63,13 +63,13 @@ class _ChangepassScreenState extends State<ChangepassScreen> {
               context: context,
               barrierDismissible: false,
               builder: (ctx) => AlertDialog(
-                title: Text('Success'),
+                title: const Text('Success'),
                 content: Text(jsonResponse['message']),
               ),
             );
 
             // Menunggu selama 5 detik sebelum pindah ke layar beranda
-            Timer(Duration(seconds: 5), () {
+            Timer(const Duration(seconds: 5), () {
               Navigator.of(context).pop();
               Navigator.of(context).pushNamed(HomeScreen.id);
             });
@@ -93,11 +93,11 @@ class _ChangepassScreenState extends State<ChangepassScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text('Error'),
+        title: const Text('Error'),
         content: Text(message),
         actions: <Widget>[
           TextButton(
-            child: Text('Okay'),
+            child: const Text('Okay'),
             onPressed: () {
               Navigator.of(ctx).pop();
             },
@@ -134,14 +134,14 @@ class _ChangepassScreenState extends State<ChangepassScreen> {
       ),
       body: Column(
         children: [
-          SizedBox(
+          const SizedBox(
             height: 50,
           ),
           const Text(
             'Set new password',
             textAlign: TextAlign.center,
           ),
-          SizedBox(
+          const SizedBox(
             height: 10,
           ),
           const Text(
@@ -196,7 +196,7 @@ class _ChangepassScreenState extends State<ChangepassScreen> {
               ),
             ),
           ),
-          SizedBox(
+          const SizedBox(
             height: 20,
           ),
           Column(

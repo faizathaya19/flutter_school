@@ -1,6 +1,7 @@
 import 'package:bpibs/ui/Screens/pickupregisform_screen.dart';
 import 'package:bpibs/ui/Screens/pocketmoneyrec_screen.dart';
 import 'package:bpibs/ui/Screens/profile_screen.dart';
+import 'package:bpibs/ui/Screens/raports_screen.dart';
 import 'package:bpibs/ui/Screens/spppaymentrec_screen.dart';
 import 'package:bpibs/ui/Screens/suggestionsandcritics_screen.dart';
 import 'package:bpibs/ui/Screens/visitregisform_screen.dart';
@@ -9,6 +10,7 @@ import 'package:bpibs/constants/const.dart';
 
 import 'achievpointsrec_screen.dart';
 import 'changepass_screen.dart';
+import 'information_screen.dart';
 import 'login_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -314,7 +316,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   InkWell(
-                    onTap: () {},
+                    onTap: () {Navigator.pushReplacementNamed(
+                          context, RaportsScreen.id);},
                     child: const CustomCard(
                       imagePath: 'assets/icon/academixgradesh.png',
                       text: 'Nilai Akademik Diniah',
@@ -442,7 +445,7 @@ Widget drawerWidget(BuildContext context) {
           leading: Icon(Icons.info),
           title: Text('Information'),
           onTap: () {
-            // TODO: Do something
+            Navigator.pushReplacementNamed(context, InformationScreen.id);
           },
         ),
         ListTile(

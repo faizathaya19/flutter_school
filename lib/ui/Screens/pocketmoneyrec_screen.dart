@@ -37,7 +37,7 @@ class _PocketmoneyrecScreenState extends State<PocketmoneyrecScreen> {
       try {
         final response = await http.post(
           Uri.parse(
-              'http://192.168.1.5/mybpibs-api/api/api.php'), // Ganti URL dengan alamat api.php
+              'http://192.168.1.2/mybpibs-api/api/api.php'), // Ganti URL dengan alamat api.php
           body: {'action': 'uang_saku_get', 'nis': nis},
         );
 
