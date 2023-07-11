@@ -1,18 +1,18 @@
-import 'package:bpibs/ui/Screens/achievpointsrec_screen.dart';
-import 'package:bpibs/ui/Screens/changepass_screen.dart';
-import 'package:bpibs/ui/Screens/criticsform_screen.dart';
-import 'package:bpibs/ui/Screens/forgetpass_screen.dart';
-import 'package:bpibs/ui/Screens/home_screen.dart';
-import 'package:bpibs/ui/Screens/information_screen.dart';
-import 'package:bpibs/ui/Screens/login_screen.dart';
-import 'package:bpibs/ui/Screens/pickupregisform_screen.dart';
-import 'package:bpibs/ui/Screens/pocketmoneyrec_screen.dart';
-import 'package:bpibs/ui/Screens/profile_screen.dart';
-import 'package:bpibs/ui/Screens/raports_screen.dart';
-import 'package:bpibs/ui/Screens/splash_screen.dart';
-import 'package:bpibs/ui/Screens/spppaymentrec_screen.dart';
-import 'package:bpibs/ui/Screens/suggestionsandcritics_screen.dart';
-import 'package:bpibs/ui/Screens/visitregisform_screen.dart';
+import 'package:bpibs/ui/screens/achievpointsrec_screen.dart';
+import 'package:bpibs/ui/screens/changepass_screen.dart';
+import 'package:bpibs/ui/screens/criticsform_screen.dart';
+import 'package:bpibs/ui/screens/forgetpass_screen.dart';
+import 'package:bpibs/ui/screens/home_screen.dart';
+import 'package:bpibs/ui/screens/information_screen.dart';
+import 'package:bpibs/ui/screens/login_screen.dart';
+import 'package:bpibs/ui/screens/pickupregisform_screen.dart';
+import 'package:bpibs/ui/screens/pocketmoneyrec_screen.dart';
+import 'package:bpibs/ui/screens/profile_screen.dart';
+import 'package:bpibs/ui/screens/raports_screen.dart';
+import 'package:bpibs/ui/screens/splash_screen.dart';
+import 'package:bpibs/ui/screens/spppaymentrec_screen.dart';
+import 'package:bpibs/ui/screens/suggestionsandcritics_screen.dart';
+import 'package:bpibs/ui/screens/visitregisform_screen.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -25,7 +25,7 @@ void main() async {
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -46,19 +46,19 @@ class MyApp extends StatelessWidget {
         SplashScreen.id: (context) => const SplashScreen(),
         LoginScreen.id: (context) => const LoginScreen(),
         ForgetpassScreen.id: (context) => const ForgetpassScreen(),
-        HomeScreen.id: (context) => HomeScreen(),
-        ProfileScreen.id: (context) => ProfileScreen(),
-        SPPPaymentrecScreen.id: (context) => SPPPaymentrecScreen(),
-        VisitregisformScreen.id: (context) => VisitregisformScreen(),
-        ChangepassScreen.id: (context) => ChangepassScreen(),
-        PocketmoneyrecScreen.id: (context) => PocketmoneyrecScreen(),
-        ArchievpointsrecScreen.id: (context) => ArchievpointsrecScreen(),
-        PickupregisformScreen.id: (context) => PickupregisformScreen(),
+        HomeScreen.id: (context) => const HomeScreen(),
+        ProfileScreen.id: (context) => const ProfileScreen(),
+        SPPPaymentrecScreen.id: (context) => const SPPPaymentrecScreen(),
+        VisitregisformScreen.id: (context) => const VisitregisformScreen(),
+        ChangepassScreen.id: (context) => const ChangepassScreen(),
+        PocketmoneyrecScreen.id: (context) => const PocketmoneyrecScreen(),
+        ArchievpointsrecScreen.id: (context) => const ArchievpointsrecScreen(),
+        PickupregisformScreen.id: (context) => const PickupregisformScreen(),
         SuggestionsAndCriticsScreen.id: (context) =>
-            SuggestionsAndCriticsScreen(),
-        CriticsformScreen.id: (context) => CriticsformScreen(),
-        InformationScreen.id: (context) => InformationScreen(),
-        RaportsScreen.id: (context) => RaportsScreen(),
+            const SuggestionsAndCriticsScreen(),
+        CriticsformScreen.id: (context) => const CriticsformScreen(),
+        InformationScreen.id: (context) => const InformationScreen(),
+        RaportsScreen.id: (context) => const RaportsScreen(),
       },
     );
   }

@@ -1,14 +1,14 @@
+import 'package:bpibs/services/api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
-
 import '../../constants/const.dart';
 import 'home_screen.dart';
 
 class ArchievpointsrecScreen extends StatefulWidget {
   static const id = 'ArchievpointsrecScreen';
-  const ArchievpointsrecScreen({Key? key});
+  const ArchievpointsrecScreen({Key? key}) : super(key: key);
 
   @override
   State<ArchievpointsrecScreen> createState() => _ArchievpointsrecScreenState();
@@ -35,7 +35,7 @@ class _ArchievpointsrecScreenState extends State<ArchievpointsrecScreen> {
       String nis = profile['nis'];
       try {
         final response = await http.post(
-          Uri.parse('http://192.168.1.2/mybpibs-api/api/api.php'),
+          Uri.parse(api),
           body: {
             'action': 'poin_prestasi_get',
             'nis': nis,
@@ -139,7 +139,7 @@ class _ArchievpointsrecScreenState extends State<ArchievpointsrecScreen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            namaLengkap ?? '', // nama lengkap
+                            namaLengkap ?? '',
                             style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,

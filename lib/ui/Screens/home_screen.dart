@@ -1,54 +1,128 @@
-import 'package:bpibs/ui/Screens/pickupregisform_screen.dart';
-import 'package:bpibs/ui/Screens/pocketmoneyrec_screen.dart';
-import 'package:bpibs/ui/Screens/profile_screen.dart';
-import 'package:bpibs/ui/Screens/raports_screen.dart';
-import 'package:bpibs/ui/Screens/spppaymentrec_screen.dart';
-import 'package:bpibs/ui/Screens/suggestionsandcritics_screen.dart';
-import 'package:bpibs/ui/Screens/visitregisform_screen.dart';
+import 'dart:convert';
+import 'package:bpibs/services/api_service.dart';
 import 'package:flutter/material.dart';
-import 'package:bpibs/constants/const.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 
 import 'achievpointsrec_screen.dart';
 import 'changepass_screen.dart';
 import 'information_screen.dart';
 import 'login_screen.dart';
+import 'pickupregisform_screen.dart';
+import 'pocketmoneyrec_screen.dart';
+import 'profile_screen.dart';
+import 'raports_screen.dart';
+import 'spppaymentrec_screen.dart';
+import 'suggestionsandcritics_screen.dart';
+import 'visitregisform_screen.dart';
+import '../../constants/const.dart';
 
 class HomeScreen extends StatefulWidget {
   static const id = 'HomeScreen';
-  const HomeScreen({super.key});
+
+  const HomeScreen({Key? key}) : super(key: key);
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final List<Map<String, dynamic>> cardData = [
-    {
-      'text1': 'Pembayaran SPP',
-      'text2': 'Juli 2022',
-      'jumlah': 'Rp 4,900,000',
-      'footer1': 'Pembayaran SPP selanjutnya',
-      'footer2': 'Agustus 2022',
-      'status': 'Lunas',
-      'background': const Color.fromARGB(255, 255, 255, 255),
-    },
-    {
-      'text1': 'Uang Saku',
-      'text2': 'Total Saldo',
-      'jumlah': 'Rp 900,000',
-      'footer1': '2022-11-23',
-      'footer2': '+ Rp 150,000.00',
-      'background': const Color.fromARGB(255, 255, 255, 255),
-    },
-    {
-      'text1': 'Poin Prestasi',
-      'null': 'null',
-      'jumlah': 'Total Poin : 245',
-      'footer1': '2022-11-23',
-      'poin': '+10',
-      'background': const Color.fromARGB(255, 255, 255, 255),
-    },
-  ];
+  Map<String, dynamic> profile = {};
+  Map<String, dynamic> homeData = {};
+  List<Map<String, dynamic>> cardData = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchHomeData();
+  }
+
+  Future<void> fetchHomeData() async {
+    final prefs = await SharedPreferences.getInstance();
+    final userProfile = prefs.getString('userProfile');
+    final nis = prefs.getString('nis');
+    String apiUrl = api;
+    final requestData = {
+      'action': 'data_get_home',
+      'nis': nis ?? '',
+    };
+
+    if (userProfile != null) {
+      setState(() {
+        profile = json.decode(userProfile);
+        isLoading = false;
+      });
+      try {
+        final response = await http.post(Uri.parse(apiUrl), body: requestData);
+
+        if (response.statusCode == 200) {
+          final jsonResponse = jsonDecode(response.body);
+          if (jsonResponse['status'] == 'success') {
+            final decodedResponse = json.decode(response.body);
+
+            final pembayaranSPP = decodedResponse['pembayaranSPP'];
+            final uangSaku = decodedResponse['uangSaku'];
+            final poinPrestasi = decodedResponse['poinPrestasi'];
+            setState(() {
+              homeData = decodedResponse;
+              cardData = [
+                {
+                  'text1': 'Pembayaran SPP',
+                  'text2': '${pembayaranSPP['text2']}',
+                  'jumlah': '${pembayaranSPP['jumlah']}',
+                  'footer1': 'Pembayaran SPP selanjutnya',
+                  'footer2': '${pembayaranSPP['footer2']}',
+                  'status': '${pembayaranSPP['status']}',
+                },
+                {
+                  'text1': 'Uang Saku',
+                  'text2': 'Total Saldo',
+                  'jumlah': '${uangSaku['jumlah']}',
+                  'footer1': '${uangSaku['footer1']}',
+                  'footer2': '${uangSaku['footer2']}',
+                },
+                {
+                  'text1': 'Poin Prestasi',
+                  'null': 'null',
+                  'jumlah': 'Total Poin : ${poinPrestasi['jumlah']}',
+                  'footer1': '${poinPrestasi['footer1']}',
+                  'poin': '${poinPrestasi['poin']}',
+                },
+              ];
+              isLoading = false;
+            });
+          } else {
+            showErrorDialog(jsonResponse['message']);
+          }
+        } else {
+          showErrorDialog('Terjadi masalah pada server.');
+        }
+      } catch (e) {
+        showErrorDialog('Terjadi masalah pada koneksi.');
+      }
+    }
+  }
+
+  void showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Error'),
+        content: Text(message),
+        actions: <Widget>[
+          TextButton(
+            child: const Text('Okay'),
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              Navigator.pushReplacementNamed(context, HomeScreen.id);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -57,11 +131,15 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: backgroundColor1,
         elevation: 0,
         toolbarHeight: 75,
-        title: Text(
-          'Portal Wali Siswa',
-          style: basicTextStyle.copyWith(
-            fontSize: 20,
-            fontWeight: bold,
+        title: AnimatedOpacity(
+          opacity: isLoading ? 0 : 1,
+          duration: const Duration(milliseconds: 500),
+          child: Text(
+            'Portal Wali Siswa',
+            style: basicTextStyle.copyWith(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
         centerTitle: true,
@@ -80,10 +158,20 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const CircleAvatar(
-                        radius: 32,
-                        backgroundImage: NetworkImage(
-                            'https://avatars0.githubusercontent.com/u/33479836?v=4'),
+                      AnimatedContainer(
+                        duration: const Duration(milliseconds: 500),
+                        curve: Curves.easeInOut,
+                        height: isLoading ? 0 : 64,
+                        width: isLoading ? 0 : 64,
+                        decoration: BoxDecoration(
+                          borderRadius:
+                              BorderRadius.circular(isLoading ? 0 : 32),
+                          image: const DecorationImage(
+                            image: NetworkImage(
+                                'https://avatars0.githubusercontent.com/u/33479836?v=4'),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
                       ),
                       Padding(
                         padding: const EdgeInsets.only(left: 10, top: 5),
@@ -91,27 +179,27 @@ class _HomeScreenState extends State<HomeScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'aisyah syafa atifah',
+                              '${profile['nama_lengkap']}',
                               textAlign: TextAlign.left,
                               style: basicTextStyle.copyWith(
                                 fontSize: 14,
-                                fontWeight: bold,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
                             Text(
-                              'Lubaabah Bintu Haarits',
+                              '${profile['asrama']}',
                               textAlign: TextAlign.left,
                               style: basicTextStyle.copyWith(
                                 fontSize: 12,
-                                fontWeight: medium,
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
                             Text(
-                              '10 IPA - Akhwat',
+                              '${profile['kelas']} - ${profile['Jenis_kelamin']}',
                               textAlign: TextAlign.left,
                               style: basicTextStyle.copyWith(
                                 fontSize: 9,
-                                fontWeight: light,
+                                fontWeight: FontWeight.w300,
                               ),
                             ),
                           ],
@@ -125,157 +213,39 @@ class _HomeScreenState extends State<HomeScreen> {
                 offset: const Offset(0.0, -50.0),
                 child: SizedBox(
                   height: 160,
-                  child: PageView.builder(
-                    controller: PageController(
-                      initialPage: 0, // Set the initial page index
-                      viewportFraction: 0.9, // Set the viewport fraction
+                  child: AnimatedOpacity(
+                    opacity: isLoading ? 0 : 1,
+                    duration: const Duration(milliseconds: 500),
+                    child: PageView.builder(
+                      controller: PageController(
+                        initialPage: 0,
+                        viewportFraction: 0.9,
+                      ),
+                      itemCount: cardData.length,
+                      itemBuilder: (context, index) {
+                        final data = cardData[index];
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 20),
+                          child: CardWidget(data: data),
+                        );
+                      },
                     ),
-                    itemCount: cardData.length,
-                    itemBuilder: (context, index) {
-                      final data = cardData[index];
-                      return Padding(
-                        padding: const EdgeInsets.only(right: 20),
-                        child: Card(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20.0),
-                          ),
-                          elevation: 4.0,
-                          color: data['background'],
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.all(16.0),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        const SizedBox(
-                                          height: 5,
-                                        ),
-                                        Text(
-                                          data['text1'],
-                                          style: basicTextStyle.copyWith(
-                                            fontSize: 10,
-                                            fontWeight: semiBold,
-                                          ),
-                                        ),
-                                        if (data.containsKey('null'))
-                                          const SizedBox(
-                                            height: 15,
-                                          ),
-                                        if (data.containsKey('text2'))
-                                          Text(
-                                            data['text2'],
-                                            style: basicTextStyle.copyWith(
-                                              fontSize: 10,
-                                              fontWeight: light,
-                                            ),
-                                          ),
-                                        const SizedBox(
-                                          height: 10,
-                                        ),
-                                        Text(
-                                          data['jumlah'],
-                                          style: basicTextStyle.copyWith(
-                                            fontSize: 17,
-                                            fontWeight: bold,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    if (data.containsKey('status'))
-                                      Container(
-                                        margin:
-                                            const EdgeInsets.only(bottom: 30),
-                                        decoration: BoxDecoration(
-                                          color: const Color.fromARGB(
-                                              255, 25, 221, 34),
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                        ),
-                                        height: 15,
-                                        width: 40,
-                                        child: Text(
-                                          data['status'],
-                                          textAlign: TextAlign.center,
-                                          style: basicTextStyle.copyWith(
-                                            fontSize: 10,
-                                            fontWeight: light,
-                                          ),
-                                        ),
-                                      ),
-                                  ],
-                                ),
-                              ),
-                              Container(
-                                decoration: const BoxDecoration(
-                                  color: Color.fromARGB(255, 197, 194, 194),
-                                  borderRadius: BorderRadius.only(
-                                    bottomRight: Radius.circular(20),
-                                    bottomLeft: Radius.circular(20),
-                                  ),
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(16.0),
-                                  child: Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        data['footer1'],
-                                        style: basicTextStyle.copyWith(
-                                          fontSize: 12,
-                                          fontWeight: light,
-                                        ),
-                                      ),
-                                      if (data.containsKey('footer2'))
-                                        Text(
-                                          data['footer2'],
-                                          style: basicTextStyle.copyWith(
-                                            fontSize: 12,
-                                            fontWeight: light,
-                                          ),
-                                        ),
-                                      if (data.containsKey('poin'))
-                                        Text(
-                                          'Poin : ${data['poin']}',
-                                          style: basicTextStyle.copyWith(
-                                            fontSize: 12,
-                                            fontWeight: light,
-                                          ),
-                                        )
-                                    ],
-                                  ),
-                                ),
-                              )
-                            ],
-                          ),
-                        ),
-                      );
-                    },
                   ),
                 ),
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  InkWell(
+                  GestureDetector(
                     onTap: () {
                       Navigator.pushReplacementNamed(context, ProfileScreen.id);
                     },
                     child: const CustomCard(
                       imagePath: 'assets/icon/profileh.png',
-                      text: 'Profile',
+                      text: 'Profil',
                     ),
                   ),
-                  InkWell(
+                  GestureDetector(
                     onTap: () {
                       Navigator.pushReplacementNamed(
                           context, SPPPaymentrecScreen.id);
@@ -290,7 +260,7 @@ class _HomeScreenState extends State<HomeScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  InkWell(
+                  GestureDetector(
                     onTap: () {
                       Navigator.pushReplacementNamed(
                           context, PocketmoneyrecScreen.id);
@@ -300,7 +270,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       text: 'Uang Saku',
                     ),
                   ),
-                  InkWell(
+                  GestureDetector(
                     onTap: () {
                       Navigator.pushReplacementNamed(
                           context, ArchievpointsrecScreen.id);
@@ -315,15 +285,16 @@ class _HomeScreenState extends State<HomeScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  InkWell(
-                    onTap: () {Navigator.pushReplacementNamed(
-                          context, RaportsScreen.id);},
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.pushReplacementNamed(context, RaportsScreen.id);
+                    },
                     child: const CustomCard(
                       imagePath: 'assets/icon/academixgradesh.png',
                       text: 'Nilai Akademik Diniah',
                     ),
                   ),
-                  InkWell(
+                  GestureDetector(
                     onTap: () {
                       Navigator.pushReplacementNamed(
                           context, PickupregisformScreen.id);
@@ -338,7 +309,7 @@ class _HomeScreenState extends State<HomeScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  InkWell(
+                  GestureDetector(
                     onTap: () {
                       Navigator.pushReplacementNamed(
                           context, VisitregisformScreen.id);
@@ -352,6 +323,137 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class CardWidget extends StatelessWidget {
+  final Map<String, dynamic> data;
+
+  const CardWidget({super.key, required this.data});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 20),
+      child: Card(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20.0),
+        ),
+        elevation: 4.0,
+        color: const Color.fromARGB(255, 255, 255, 255),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(
+                        height: 5,
+                      ),
+                      Text(
+                        data['text1'],
+                        style: basicTextStyle.copyWith(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      if (data.containsKey('null'))
+                        const SizedBox(
+                          height: 15,
+                        ),
+                      if (data.containsKey('text2'))
+                        Text(
+                          data['text2'],
+                          style: basicTextStyle.copyWith(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w300,
+                          ),
+                        ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      Text(
+                        data['jumlah'],
+                        style: basicTextStyle.copyWith(
+                          fontSize: 17,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (data.containsKey('status'))
+                    Container(
+                      margin: const EdgeInsets.only(bottom: 30),
+                      decoration: BoxDecoration(
+                        color: data['status'] == 'Lunas'
+                            ? const Color.fromARGB(255, 16, 196, 16)
+                            : const Color.fromARGB(255, 219, 31, 31),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      height: 15,
+                      width: 40,
+                      child: Text(
+                        data['status'],
+                        textAlign: TextAlign.center,
+                        style: basicTextStyle.copyWith(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w300,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            Container(
+              decoration: const BoxDecoration(
+                color: Color.fromARGB(255, 197, 194, 194),
+                borderRadius: BorderRadius.only(
+                  bottomRight: Radius.circular(20),
+                  bottomLeft: Radius.circular(20),
+                ),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      data['footer1'],
+                      style: basicTextStyle.copyWith(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w300,
+                      ),
+                    ),
+                    if (data.containsKey('footer2'))
+                      Text(
+                        data['footer2'],
+                        style: basicTextStyle.copyWith(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w300,
+                        ),
+                      ),
+                    if (data.containsKey('poin'))
+                      Text(
+                        'Poin : ${data['poin']}',
+                        style: basicTextStyle.copyWith(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w300,
+                        ),
+                      )
+                  ],
+                ),
+              ),
+            )
+          ],
         ),
       ),
     );
@@ -377,18 +479,19 @@ class CustomCard extends StatelessWidget {
         child: Card(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           elevation: 4,
-          color: Colors.green, // Ubah warna latar belakang Card menjadi hijau
+          color: const Color.fromARGB(255, 75, 77,
+              202), // Change the background color of the Card to green
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               CircleAvatar(
                 radius: 40,
                 backgroundColor: Colors
-                    .white, // Ubah warna latar belakang lingkaran menjadi putih
+                    .white, // Change the background color of the circle to white
                 child: Image.asset(
                   imagePath,
-                  width: 55, // Ubah lebar aset menjadi 60
-                  height: 55, // Ubah tinggi aset menjadi 60
+                  width: 60, // Change the width of the asset to 60
+                  height: 60, // Change the height of the asset to 60
                 ),
               ),
               const SizedBox(height: 12),
@@ -396,7 +499,7 @@ class CustomCard extends StatelessWidget {
                 text,
                 style: primaryTextStyle.copyWith(
                   fontSize: 13,
-                  fontWeight: bold,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ],
@@ -423,7 +526,7 @@ Widget drawerWidget(BuildContext context) {
                 'assets/Logo.png',
                 width: 150,
               ),
-              Text(
+              const Text(
                 'Bintang Pelajar Boarding School',
                 style: TextStyle(
                   color: Colors.white,
@@ -434,31 +537,31 @@ Widget drawerWidget(BuildContext context) {
           ),
         ),
         ListTile(
-          leading: Icon(Icons.lightbulb),
-          title: Text('Suggestions and Critics'),
+          leading: const Icon(Icons.lightbulb),
+          title: const Text('Saran dan Kritik'),
           onTap: () {
             Navigator.pushReplacementNamed(
                 context, SuggestionsAndCriticsScreen.id);
           },
         ),
         ListTile(
-          leading: Icon(Icons.info),
-          title: Text('Information'),
+          leading: const Icon(Icons.info),
+          title: const Text('Informasi'),
           onTap: () {
             Navigator.pushReplacementNamed(context, InformationScreen.id);
           },
         ),
         ListTile(
-          leading: Icon(Icons.lock),
-          title: Text('Change Password'),
+          leading: const Icon(Icons.lock),
+          title: const Text('Ubah Kata Sandi'),
           onTap: () {
             Navigator.pushReplacementNamed(context, ChangepassScreen.id);
           },
         ),
-        Divider(),
+        const Divider(),
         ListTile(
-          leading: Icon(Icons.logout),
-          title: Text('Logout'),
+          leading: const Icon(Icons.logout),
+          title: const Text('Keluar'),
           onTap: () {
             Navigator.popAndPushNamed(context, LoginScreen.id);
           },

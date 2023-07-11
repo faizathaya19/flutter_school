@@ -1,23 +1,26 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:bpibs/services/api_service.dart';
+import 'package:bpibs/ui/widgets/buildButton_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../constants/const.dart';
+
 import 'home_screen.dart';
 
 class ChangepassScreen extends StatefulWidget {
   static const id = 'ChangepassScreen';
 
-  const ChangepassScreen({super.key});
+  const ChangepassScreen({Key? key}) : super(key: key);
   @override
-  _ChangepassScreenState createState() => _ChangepassScreenState();
+  ChangepassScreenState createState() => ChangepassScreenState();
 }
 
-class _ChangepassScreenState extends State<ChangepassScreen> {
+class ChangepassScreenState extends State<ChangepassScreen> {
   TextEditingController passwordController = TextEditingController();
   TextEditingController confirmPasswordController = TextEditingController();
   bool _passwordsMatch = true;
@@ -47,7 +50,7 @@ class _ChangepassScreenState extends State<ChangepassScreen> {
         String nis = profile['nis'];
 
         final response = await http.post(
-          Uri.parse('http://192.168.1.2/mybpibs-api/api/api.php'),
+          Uri.parse(api),
           body: {
             'action': 'update_password',
             'nis': nis,
@@ -69,7 +72,7 @@ class _ChangepassScreenState extends State<ChangepassScreen> {
             );
 
             // Menunggu selama 5 detik sebelum pindah ke layar beranda
-            Timer(const Duration(seconds: 5), () {
+            Timer(const Duration(seconds: 3), () {
               Navigator.of(context).pop();
               Navigator.of(context).pushNamed(HomeScreen.id);
             });
@@ -151,6 +154,7 @@ class _ChangepassScreenState extends State<ChangepassScreen> {
           const SizedBox(
             height: 50,
           ),
+  
           Container(
             alignment: Alignment.center,
             height: size.height / 16,
@@ -265,27 +269,14 @@ class _ChangepassScreenState extends State<ChangepassScreen> {
           const SizedBox(
             height: 30,
           ),
-          Container(
+          BuildButton(
             width: 300,
-            height: size.height / 15,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10.0),
-              color: buttonColor1,
-            ),
-            child: TextButton(
-              onPressed: () async {
-                await _changePassword();
-              },
-              child: const Text(
-                'Save',
-                style: TextStyle(
-                  fontSize: 18,
-                  color: Colors.white,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ),
-          )
+            height: size.height / 16,
+            onTap: () async {
+              await _changePassword();
+            },
+            label: 'Simpan',
+          ),
         ],
       ),
     );

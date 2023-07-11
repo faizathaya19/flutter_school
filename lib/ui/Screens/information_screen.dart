@@ -4,18 +4,17 @@ import '../../constants/const.dart';
 import 'home_screen.dart';
 
 class InformationScreen extends StatefulWidget {
-
   const InformationScreen({super.key});
   static const id = 'InformationScreen';
   @override
-  _InformationScreenState createState() => _InformationScreenState();
+  InformationScreenState createState() => InformationScreenState();
 }
 
-class _InformationScreenState extends State<InformationScreen> {
+class InformationScreenState extends State<InformationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-       backgroundColor: backgroundColor1,
+      backgroundColor: backgroundColor1,
       appBar: AppBar(
         backgroundColor: backgroundColor1,
         elevation: 0,
@@ -27,7 +26,7 @@ class _InformationScreenState extends State<InformationScreen> {
           },
         ),
         title: const Text(
-          'Informasi Pembayaran',
+          'Informasi',
           style: TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.bold,
@@ -82,7 +81,8 @@ class PaymentInfo extends StatelessWidget {
         title: Text(title),
         children: <Widget>[
           ListTile(
-            title: Text('Metoda pembayaran yang digunakan adalah menggunakan virtual account BSI, dengan kode tujuan $bankCode.'),
+            title: Text(
+                'Metoda pembayaran yang digunakan adalah menggunakan virtual account BSI, dengan kode tujuan $bankCode.'),
             subtitle: Text('Nomor VA (8 digit): $accountNumber'),
           ),
           ListTile(
@@ -116,7 +116,8 @@ class PaymentInfo extends StatelessWidget {
             ),
           ),
           ListTile(
-            title: const Text('Langkah-langkah Pembayaran Melalui Outlet Bank BSI:'),
+            title: const Text(
+                'Langkah-langkah Pembayaran Melalui Outlet Bank BSI:'),
             subtitle: Text(
               '1. Isi memo setoran tunai BPIBS.\n'
               '2. Tulis rekening tujuan dengan format: $bankCode + 8 digit nomor VA siswa, yaitu: $bankCode$accountNumber\n'

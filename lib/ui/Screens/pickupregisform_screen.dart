@@ -1,10 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'package:bpibs/services/api_service.dart';
+import 'package:bpibs/ui/widgets/buildButton_widget.dart';
+import 'package:bpibs/ui/widgets/buildTextField_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../constants/const.dart';
@@ -13,11 +16,13 @@ import 'home_screen.dart';
 class PickupregisformScreen extends StatefulWidget {
   static const id = 'PickupregisformScreen';
 
+  const PickupregisformScreen({super.key});
+
   @override
-  _PickupregisformScreenState createState() => _PickupregisformScreenState();
+  PickupregisformScreenState createState() => PickupregisformScreenState();
 }
 
-class _PickupregisformScreenState extends State<PickupregisformScreen> {
+class PickupregisformScreenState extends State<PickupregisformScreen> {
   final TextEditingController namaPenjemputController = TextEditingController();
   final TextEditingController tanggalLahirController = TextEditingController();
   final TextEditingController hubSiswaController = TextEditingController();
@@ -25,7 +30,7 @@ class _PickupregisformScreenState extends State<PickupregisformScreen> {
   final TextEditingController noKtpAkhirController = TextEditingController();
   final TextEditingController alamatController = TextEditingController();
   final TextEditingController alamatTinggalController = TextEditingController();
-  final TextEditingController noWaController = TextEditingController();
+  final TextEditingController whatsappController = TextEditingController();
 
   bool isLoading = false;
   XFile? imageFile;
@@ -36,13 +41,13 @@ class _PickupregisformScreenState extends State<PickupregisformScreen> {
     });
 
     try {
-      var nis;
+      String? nis;
 
       // Mengambil nis dari SharedPreferences
       SharedPreferences prefs = await SharedPreferences.getInstance();
       nis = prefs.getString('nis');
 
-      String url = 'http://192.168.1.2/mybpibs-api/api/api.php';
+      String url = api;
 
       var request = http.MultipartRequest('POST', Uri.parse(url));
 
@@ -55,7 +60,7 @@ class _PickupregisformScreenState extends State<PickupregisformScreen> {
       request.fields['no_ktp_akhir'] = noKtpAkhirController.text;
       request.fields['alamat_sesuai_ktp'] = alamatController.text;
       request.fields['alamat_tinggal'] = alamatTinggalController.text;
-      request.fields['no_whatsapp_penjemput'] = noWaController.text;
+      request.fields['no_whatsapp_penjemput'] = whatsappController.text;
 
       if (imageFile != null) {
         request.files
@@ -190,12 +195,13 @@ class _PickupregisformScreenState extends State<PickupregisformScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  FormTextField(
+                  BuildTextField(
                     controller: namaPenjemputController,
                     labelText: 'Nama Penjemput (Mahrom)',
                     size: size,
+                    maxLines: null,
                   ),
-                  FormTextField(
+                  BuildTextField(
                     controller: tanggalLahirController,
                     labelText: 'Tanggal Lahir',
                     size: size,
@@ -204,101 +210,90 @@ class _PickupregisformScreenState extends State<PickupregisformScreen> {
                     },
                     readOnly: true,
                   ),
-                  FormTextField(
+                  BuildTextField(
                     controller: hubSiswaController,
                     labelText: 'Hubungan dengan siswa',
                     size: size,
+                    maxLines: null,
                   ),
                   Row(
                     children: [
                       Expanded(
-                        child: FormTextField(
+                        child: BuildTextField(
                           controller: noKtpAwalController,
                           labelText: 'No KTP (Awal)',
                           size: Size(size.width * 0.5, size.height),
+                          maxLines: null,
                         ),
                       ),
                       SizedBox(width: 6),
                       Expanded(
-                        child: FormTextField(
+                        child: BuildTextField(
                           controller: noKtpAkhirController,
                           labelText: 'No KTP (Akhir)',
                           size: Size(size.width * 0.5, size.height),
+                          maxLines: null,
                         ),
                       ),
                     ],
                   ),
-                  FormTextField(
+                  BuildTextField(
                     controller: alamatController,
                     labelText: 'Alamat',
                     size: size,
                     maxLines: null,
                   ),
-                  FormTextField(
+                  BuildTextField(
                     controller: alamatTinggalController,
                     labelText: 'Alamat Tinggal',
                     size: size,
                     maxLines: null,
                   ),
-                  FormTextField(
-                    controller: noWaController,
+                  BuildTextField(
+                    controller: whatsappController,
                     labelText: 'No WhatsApp',
                     size: size,
-                  ),
-                  SizedBox(height: 20),
-                  GestureDetector(
-                    onTap: chooseImage,
-                    child: Container(
-                      width: 120,
-                      height: 120,
-                      decoration: BoxDecoration(
-                        color: inputColor1,
-                        borderRadius: BorderRadius.circular(10.0),
-                      ),
-                      child: imageFile != null
-                          ? ClipRRect(
-                              borderRadius: BorderRadius.circular(10.0),
-                              child: Image.file(
-                                File(imageFile!.path),
-                                fit: BoxFit.cover,
-                              ),
-                            )
-                          : Icon(
-                              Icons.camera_alt,
-                              color: Colors.grey,
-                              size: 40.0,
-                            ),
-                    ),
+                    keyboardType: TextInputType.number,
+                    inputFormatters: <TextInputFormatter>[
+                      FilteringTextInputFormatter.digitsOnly
+                    ],
+                    maxLines: null,
                   ),
                   SizedBox(height: 20),
                   Center(
                     child: GestureDetector(
-                      onTap: () {
-                        uploadData();
-                      },
+                      onTap: chooseImage,
                       child: Container(
-                        alignment: Alignment.center,
-                        height: size.height / 16,
-                        width: size.width,
+                        width: 120,
+                        height: 120,
                         decoration: BoxDecoration(
-                          color: buttonColor1,
+                          color: inputColor1,
                           borderRadius: BorderRadius.circular(10.0),
                         ),
-                        child: isLoading
-                            ? CircularProgressIndicator(
-                                valueColor:
-                                    AlwaysStoppedAnimation<Color>(Colors.white),
-                              )
-                            : Text(
-                                'Kirim',
-                                style: GoogleFonts.inter(
-                                  fontSize: 16.0,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w500,
+                        child: imageFile != null
+                            ? ClipRRect(
+                                borderRadius: BorderRadius.circular(10.0),
+                                child: Image.file(
+                                  File(imageFile!.path),
+                                  fit: BoxFit.cover,
                                 ),
+                              )
+                            : Icon(
+                                Icons.camera_alt,
+                                color: Colors.grey,
+                                size: 40.0,
                               ),
                       ),
                     ),
+                  ),
+                  SizedBox(height: 20),
+                  BuildButton(
+                    width: 300,
+                    height: size.height / 16,
+                    onTap: () async {
+                      await uploadData();
+                    },
+                    label: 'Kirim',
                   ),
                 ],
               ),
@@ -321,81 +316,5 @@ class _PickupregisformScreenState extends State<PickupregisformScreen> {
         tanggalLahirController.text = picked.toString().split(' ')[0];
       });
     }
-  }
-}
-
-class FormTextField extends StatelessWidget {
-  final TextEditingController controller;
-  final String labelText;
-  final Size size;
-  final Function()? onTap;
-  final bool readOnly;
-  final int? maxLines;
-
-  const FormTextField({
-    Key? key,
-    required this.controller,
-    required this.labelText,
-    required this.size,
-    this.onTap,
-    this.readOnly = false,
-    this.maxLines,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: size.width,
-      margin: EdgeInsets.symmetric(vertical: 10),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            labelText,
-            style: basicTextStyle.copyWith(
-              fontSize: 13,
-              fontWeight: bold,
-            ),
-          ),
-          SizedBox(height: 5),
-          Container(
-            width: double.infinity,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10.0),
-              border: Border.all(
-                color: const Color.fromARGB(255, 138, 134, 134),
-                width: 1.0,
-              ),
-              color: inputColor1,
-            ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: TextField(
-                controller: controller,
-                maxLines: maxLines,
-                cursorColor: const Color.fromARGB(179, 0, 0, 0),
-                keyboardType: TextInputType.emailAddress,
-                style: GoogleFonts.inter(
-                  fontSize: 14.0,
-                  color: const Color.fromARGB(179, 0, 0, 0),
-                  fontWeight: FontWeight.w500,
-                ),
-                readOnly: readOnly,
-                onTap: onTap,
-                decoration: InputDecoration(
-                  hintText: labelText,
-                  hintStyle: GoogleFonts.inter(
-                    fontSize: 14.0,
-                    color: inputColor4,
-                    fontWeight: FontWeight.w500,
-                  ),
-                  border: InputBorder.none,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
   }
 }

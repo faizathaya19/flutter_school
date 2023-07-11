@@ -1,3 +1,4 @@
+import 'package:bpibs/services/api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -37,7 +38,7 @@ class _PocketmoneyrecScreenState extends State<PocketmoneyrecScreen> {
       try {
         final response = await http.post(
           Uri.parse(
-              'http://192.168.1.2/mybpibs-api/api/api.php'), // Ganti URL dengan alamat api.php
+              api), // Ganti URL dengan alamat api.php
           body: {'action': 'uang_saku_get', 'nis': nis},
         );
 
@@ -79,11 +80,11 @@ class _PocketmoneyrecScreenState extends State<PocketmoneyrecScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text('Error'),
+        title: const Text('Error'),
         content: Text(message),
         actions: <Widget>[
           TextButton(
-            child: Text('Okay'),
+            child: const Text('Okay'),
             onPressed: () {
               Navigator.of(ctx).pop();
               Navigator.pushReplacementNamed(context, HomeScreen.id);
@@ -122,7 +123,7 @@ class _PocketmoneyrecScreenState extends State<PocketmoneyrecScreen> {
         centerTitle: true,
       ),
       body: isLoading
-          ? Center(
+          ? const Center(
               child: CircularProgressIndicator(),
             )
           : Column(
@@ -136,14 +137,14 @@ class _PocketmoneyrecScreenState extends State<PocketmoneyrecScreen> {
                     color: const Color.fromARGB(255, 255, 255, 255)
                         .withOpacity(0.5),
                     child: Padding(
-                      padding: EdgeInsets.all(15.0),
+                      padding: const EdgeInsets.all(15.0),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
                             namaLengkap ?? '', // nama lengkap
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
                             ),
@@ -188,12 +189,12 @@ class _PocketmoneyrecScreenState extends State<PocketmoneyrecScreen> {
             children: [
               Text(
                 saldo['keterangan'],
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.normal,
                 ),
               ),
-              SizedBox(height: 3),
+              const SizedBox(height: 3),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [

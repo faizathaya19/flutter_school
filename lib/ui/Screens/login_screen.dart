@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:bpibs/services/api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
@@ -36,7 +37,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     try {
       final response = await http.post(
-        Uri.parse('http://192.168.1.2/mybpibs-api/api/api.php'),
+        Uri.parse(api),
         body: {
           'action': 'login',
           'nis': nis,
@@ -53,10 +54,8 @@ class _LoginScreenState extends State<LoginScreen> {
         if (jsonResponse['status'] == 'success') {
           SharedPreferences prefs = await SharedPreferences.getInstance();
           prefs.setString('userProfile', json.encode(jsonResponse['profile']));
-
           // Menyimpan nis di SharedPreferences
           prefs.setString('nis', nis);
-
           Navigator.pushReplacementNamed(context, HomeScreen.id);
         } else {
           showErrorDialog(jsonResponse['message']);
@@ -245,7 +244,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 );
               },
         child: isLoading
-            ? CircularProgressIndicator()
+            ? const CircularProgressIndicator()
             : const Text(
                 'Sign In',
                 style: TextStyle(
@@ -268,6 +267,7 @@ class CustomTextField extends StatelessWidget {
   final Widget? suffixIcon;
 
   const CustomTextField({
+    super.key,
     required this.size,
     required this.controller,
     required this.hintText,

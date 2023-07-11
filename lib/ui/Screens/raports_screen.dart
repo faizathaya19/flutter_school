@@ -1,7 +1,10 @@
 import 'dart:convert';
+import 'package:bpibs/services/api_service.dart';
+import 'package:bpibs/ui/widgets/buildButton_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:photo_view/photo_view.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../constants/const.dart';
 import 'home_screen.dart';
@@ -9,14 +12,17 @@ import 'home_screen.dart';
 class RaportsScreen extends StatefulWidget {
   static const id = 'RaportsScreen';
 
+  const RaportsScreen({Key? key}) : super(key: key);
+
   @override
-  _RaportsScreenState createState() => _RaportsScreenState();
+  RaportsScreenState createState() => RaportsScreenState();
 }
 
-class _RaportsScreenState extends State<RaportsScreen> {
+class RaportsScreenState extends State<RaportsScreen> {
   List<Map<String, dynamic>> raports = [];
   int currentIndex = 0;
   bool isShowingFullScreen = false;
+  bool isLoading = false;
 
   @override
   void initState() {
@@ -25,9 +31,15 @@ class _RaportsScreenState extends State<RaportsScreen> {
   }
 
   Future<void> fetchData() async {
-    final nis = '12119185'; // Isi dengan NIS yang login
+    setState(() {
+      isLoading = true;
+    });
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? nis = prefs.getString('nis');
+
     final response = await http.post(
-      Uri.parse('http://192.168.1.2/mybpibs-api/api/api.php'),
+      Uri.parse(api),
       body: {
         'action': 'raports_get',
         'nis': nis,
@@ -39,12 +51,19 @@ class _RaportsScreenState extends State<RaportsScreen> {
       if (jsonResponse['status'] == 'success') {
         setState(() {
           raports = List<Map<String, dynamic>>.from(jsonResponse['raports']);
+          isLoading = false;
         });
       } else {
-        // Handle error response
+        setState(() {
+          isLoading = false;
+        });
+        showErrorDialog('Failed to fetch raport data.');
       }
     } else {
-      // Handle error response
+      setState(() {
+        isLoading = false;
+      });
+      showErrorDialog('Failed to connect to the server.');
     }
   }
 
@@ -61,8 +80,28 @@ class _RaportsScreenState extends State<RaportsScreen> {
     });
   }
 
+  void showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Error'),
+        content: Text(message),
+        actions: <Widget>[
+          TextButton(
+            child: const Text('Okay'),
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              Navigator.pushReplacementNamed(context, HomeScreen.id);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final Size size = MediaQuery.of(context).size;
     return Scaffold(
       backgroundColor: backgroundColor1,
       appBar: AppBar(
@@ -92,9 +131,7 @@ class _RaportsScreenState extends State<RaportsScreen> {
               itemCount: raports.length,
               itemBuilder: (context, index) {
                 final raport = raports[index];
-                final imageUrl =
-                    'http://192.168.1.2/mybpibs-api/uploads/raports/${raport['images']}';
-
+                final imageUrl = '$imageapi${raport['images']}';
                 return Padding(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 20,
@@ -114,15 +151,15 @@ class _RaportsScreenState extends State<RaportsScreen> {
                           children: [
                             Text(
                               'Semester: ${raport['semesters']}',
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
                               ),
                             ),
-                            SizedBox(height: 5),
+                            const SizedBox(height: 5),
                             Text(
                               '${raport['exam_type']}',
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 14,
                               ),
                             ),
@@ -143,7 +180,7 @@ class _RaportsScreenState extends State<RaportsScreen> {
                   Expanded(
                     child: PhotoView(
                       imageProvider: NetworkImage(
-                        'http://192.168.1.2/mybpibs-api/uploads/raports/${raports[currentIndex]['images']}',
+                        '$imageapi${raports[currentIndex]['images']}',
                       ),
                       backgroundDecoration: BoxDecoration(
                         color: backgroundColor1,
@@ -154,20 +191,25 @@ class _RaportsScreenState extends State<RaportsScreen> {
                       heroAttributes: PhotoViewHeroAttributes(
                         tag: 'raportImage$currentIndex',
                       ),
-                      loadingBuilder: (context, event) => Center(
+                      loadingBuilder: (context, event) => const Center(
                         child: CircularProgressIndicator(),
                       ),
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.all(10),
-                    child: ElevatedButton(
-                      onPressed: closeFullScreen,
-                      child: Text('Close'),
-                    ),
-                  ),
+                    padding: const EdgeInsets.all(10.0),
+                    child: BuildButton(
+                        width: double.infinity,
+                        height: size.height / 16,
+                        onTap: closeFullScreen,
+                        label: 'Close'),
+                  )
                 ],
               ),
+            ),
+          if (isLoading)
+            const Center(
+              child: CircularProgressIndicator(),
             ),
         ],
       ),
