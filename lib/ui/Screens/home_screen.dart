@@ -1,354 +1,408 @@
-import 'package:bpibs/ui/Screens/pickupregisform_screen.dart';
-import 'package:bpibs/ui/Screens/pocketmoneyrec_screen.dart';
-import 'package:bpibs/ui/Screens/profile_screen.dart';
-import 'package:bpibs/ui/Screens/raports_screen.dart';
-import 'package:bpibs/ui/Screens/spppaymentrec_screen.dart';
-import 'package:bpibs/ui/Screens/suggestionsandcritics_screen.dart';
-import 'package:bpibs/ui/Screens/visitregisform_screen.dart';
+import 'dart:convert';
+import 'package:bpibs/services/api_service.dart';
+import 'package:bpibs/ui/screens/notification_activity_pickup.dart';
+import 'package:bpibs/ui/screens/notification_activity_visit.dart';
+import 'package:bpibs/ui/widgets/DialogShow.dart';
 import 'package:flutter/material.dart';
-import 'package:bpibs/constants/const.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+import 'package:url_launcher/url_launcher.dart';
 
 import 'achievpointsrec_screen.dart';
 import 'changepass_screen.dart';
 import 'information_screen.dart';
 import 'login_screen.dart';
+import 'pickupregisform_screen.dart';
+import 'pocketmoneyrec_screen.dart';
+import 'profile_screen.dart';
+import 'raports_screen.dart';
+import 'spppaymentrec_screen.dart';
+import 'suggestionsandcritics_screen.dart';
+import 'visitregisform_screen.dart';
+import '../../constants/const.dart';
 
 class HomeScreen extends StatefulWidget {
   static const id = 'HomeScreen';
-  const HomeScreen({super.key});
+
+  const HomeScreen({Key? key}) : super(key: key);
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final List<Map<String, dynamic>> cardData = [
-    {
-      'text1': 'Pembayaran SPP',
-      'text2': 'Juli 2022',
-      'jumlah': 'Rp 4,900,000',
-      'footer1': 'Pembayaran SPP selanjutnya',
-      'footer2': 'Agustus 2022',
-      'status': 'Lunas',
-      'background': const Color.fromARGB(255, 255, 255, 255),
-    },
-    {
-      'text1': 'Uang Saku',
-      'text2': 'Total Saldo',
-      'jumlah': 'Rp 900,000',
-      'footer1': '2022-11-23',
-      'footer2': '+ Rp 150,000.00',
-      'background': const Color.fromARGB(255, 255, 255, 255),
-    },
-    {
-      'text1': 'Poin Prestasi',
-      'null': 'null',
-      'jumlah': 'Total Poin : 245',
-      'footer1': '2022-11-23',
-      'poin': '+10',
-      'background': const Color.fromARGB(255, 255, 255, 255),
-    },
-  ];
+  Map<String, dynamic> profile = {};
+  Map<String, dynamic> homeData = {};
+  List<Map<String, dynamic>> cardData = [];
+  bool isLoading = true;
+  @override
+  void initState() {
+    super.initState();
+    fetchHomeData();
+  }
+
+  Future<void> fetchHomeData() async {
+    final prefs = await SharedPreferences.getInstance();
+    final userProfile = prefs.getString('userProfile');
+    final nis = prefs.getString('nis');
+    String apiUrl = api;
+    final requestData = {
+      'action': 'data_get_home',
+      'nis': nis ?? '',
+    };
+
+    if (userProfile != null) {
+      setState(() {
+        profile = json.decode(userProfile);
+        isLoading = false;
+      });
+      try {
+        final response = await http.post(Uri.parse(apiUrl), body: requestData);
+
+        if (response.statusCode == 200) {
+          final jsonResponse = jsonDecode(response.body);
+          if (jsonResponse['status'] == 'success') {
+            final decodedResponse = json.decode(response.body);
+
+            final pembayaranSPP = decodedResponse['pembayaranSPP'];
+            final uangSaku = decodedResponse['uangSaku'];
+            final poinPrestasi = decodedResponse['poinPrestasi'];
+            setState(() {
+              homeData = decodedResponse;
+              cardData = [
+                {
+                  'text1': 'Poin Prestasi',
+                  'text2': '${poinPrestasi['jumlah']}',
+                },
+                {
+                  'text1': 'Uang Saku',
+                  'text2': '${uangSaku['jumlah']}',
+                },
+                {
+                  'text1': 'Pembayaran SPP',
+                  'text2': '${pembayaranSPP['text2']}',
+                  'status': '${pembayaranSPP['status']}',
+                },
+              ];
+              isLoading = false;
+            });
+          } else {
+            showErrorDialog(context, jsonResponse['message'], () {
+              Navigator.of(context).pop();
+            });
+          }
+        } else {
+          showErrorDialog(context, 'Terjadi masalah pada server.', () {
+            Navigator.of(context).pop();
+          });
+        }
+      } catch (e) {
+        showErrorDialog(context, 'Terjadi masalah pada koneksi.', () {
+          Navigator.of(context).pop();
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: backgroundColor1,
-      appBar: AppBar(
-        backgroundColor: backgroundColor1,
-        elevation: 0,
-        toolbarHeight: 75,
-        title: Text(
-          'Portal Wali Siswa',
-          style: basicTextStyle.copyWith(
-            fontSize: 20,
-            fontWeight: bold,
-          ),
-        ),
-        centerTitle: true,
-      ),
-      drawer: drawerWidget(context),
+      backgroundColor: const Color.fromARGB(255, 221, 242, 236),
+      drawer: drawerWidget(context), // Your custom drawer widget here
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
             children: [
               Container(
-                height: 168,
-                color:
-                    const Color.fromARGB(255, 255, 255, 255).withOpacity(0.5),
+                width: double.infinity,
+                decoration: const BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage(
+                        'assets/header.png'), // Replace 'your_background_image.png' with your actual image path
+                    fit: BoxFit.cover,
+                  ),
+                ),
                 child: Padding(
-                  padding: const EdgeInsets.only(left: 30, top: 30),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  padding: const EdgeInsets.only(top: 20, bottom: 60),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      const CircleAvatar(
-                        radius: 32,
-                        backgroundImage: NetworkImage(
-                            'https://avatars0.githubusercontent.com/u/33479836?v=4'),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 10, top: 5),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'aisyah syafa atifah',
-                              textAlign: TextAlign.left,
-                              style: basicTextStyle.copyWith(
-                                fontSize: 14,
-                                fontWeight: bold,
+                      Align(
+                        alignment: Alignment.topLeft,
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 20),
+                          child: Builder(
+                            builder: (context) => IconButton(
+                              icon: const Material(
+                                elevation:
+                                    4.0, // Set the elevation value as desired
+                                shape: CircleBorder(),
+                                clipBehavior: Clip.hardEdge,
+                                child: Padding(
+                                  padding: EdgeInsets.all(
+                                      4.0), // Add padding of 10 around the CircleAvatar
+                                  child: CircleAvatar(
+                                    radius:
+                                        100, // Set the radius to 25 for a height and width of 50
+                                    backgroundImage:
+                                        AssetImage('assets/icon/menu.png'),
+                                    backgroundColor: Colors.transparent,
+                                  ),
+                                ),
                               ),
+                              onPressed: () {
+                                Scaffold.of(context).openDrawer();
+                              },
                             ),
-                            Text(
-                              'Lubaabah Bintu Haarits',
-                              textAlign: TextAlign.left,
-                              style: basicTextStyle.copyWith(
-                                fontSize: 12,
-                                fontWeight: medium,
-                              ),
-                            ),
-                            Text(
-                              '10 IPA - Akhwat',
-                              textAlign: TextAlign.left,
-                              style: basicTextStyle.copyWith(
-                                fontSize: 9,
-                                fontWeight: light,
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
-                      )
+                      ),
+                      Center(
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 500),
+                          curve: Curves.easeInOut,
+                          height: isLoading ? 0 : 50,
+                          width: isLoading ? 0 : 50,
+                          decoration: BoxDecoration(
+                            borderRadius:
+                                BorderRadius.circular(isLoading ? 0 : 32),
+                            image: const DecorationImage(
+                              image: NetworkImage(
+                                'https://avatars0.githubusercontent.com/u/33479836?v=4',
+                              ),
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 5),
+                      Text(
+                        '${profile['nama_lengkap']}',
+                        textAlign: TextAlign.left,
+                        style: basicTextStyle.copyWith(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        '${profile['asrama']}',
+                        textAlign: TextAlign.left,
+                        style: basicTextStyle.copyWith(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        '${profile['kelas']} - ${profile['Jenis_kelamin']}',
+                        textAlign: TextAlign.left,
+                        style: basicTextStyle.copyWith(
+                          fontSize: 9,
+                          fontWeight: FontWeight.w300,
+                        ),
+                      ),
                     ],
                   ),
                 ),
               ),
               Transform.translate(
-                offset: const Offset(0.0, -50.0),
-                child: SizedBox(
-                  height: 160,
-                  child: PageView.builder(
-                    controller: PageController(
-                      initialPage: 0, // Set the initial page index
-                      viewportFraction: 0.9, // Set the viewport fraction
-                    ),
-                    itemCount: cardData.length,
-                    itemBuilder: (context, index) {
-                      final data = cardData[index];
-                      return Padding(
-                        padding: const EdgeInsets.only(right: 20),
+                offset: const Offset(0.0, -25.0),
+                child: AnimatedOpacity(
+                  opacity: isLoading ? 0 : 1,
+                  duration: const Duration(milliseconds: 500),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: List.generate(
+                      cardData.length,
+                      (index) => Expanded(
+                        flex: 1,
                         child: Card(
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20.0),
+                            borderRadius: BorderRadius.circular(10.0),
                           ),
-                          elevation: 4.0,
-                          color: data['background'],
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.all(16.0),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        const SizedBox(
-                                          height: 5,
+                          elevation: 9.1,
+                          color: const Color.fromARGB(255, 255, 255, 255),
+                          child: Center(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Padding(
+                                  padding: EdgeInsets.all(
+                                      cardData[index].containsKey('status')
+                                          ? 11.0
+                                          : 19.0),
+                                  child: Column(
+                                    children: [
+                                      Text(
+                                        cardData[index]['text1'],
+                                        style: basicTextStyle.copyWith(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w100,
                                         ),
+                                      ),
+                                      Text(
+                                        cardData[index]['text2'] ?? '',
+                                        style: basicTextStyle.copyWith(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                if (cardData[index].containsKey('status'))
+                                  Container(
+                                    decoration: const BoxDecoration(
+                                      color: Color.fromARGB(255, 16, 196, 16),
+                                      borderRadius: BorderRadius.only(
+                                        bottomRight: Radius.circular(10),
+                                        bottomLeft: Radius.circular(10),
+                                      ),
+                                    ),
+                                    child: Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
                                         Text(
-                                          data['text1'],
+                                          cardData[index]['status'] ?? '',
+                                          textAlign: TextAlign.center,
                                           style: basicTextStyle.copyWith(
                                             fontSize: 10,
-                                            fontWeight: semiBold,
-                                          ),
-                                        ),
-                                        if (data.containsKey('null'))
-                                          const SizedBox(
-                                            height: 15,
-                                          ),
-                                        if (data.containsKey('text2'))
-                                          Text(
-                                            data['text2'],
-                                            style: basicTextStyle.copyWith(
-                                              fontSize: 10,
-                                              fontWeight: light,
-                                            ),
-                                          ),
-                                        const SizedBox(
-                                          height: 10,
-                                        ),
-                                        Text(
-                                          data['jumlah'],
-                                          style: basicTextStyle.copyWith(
-                                            fontSize: 17,
-                                            fontWeight: bold,
+                                            fontWeight: FontWeight.w300,
                                           ),
                                         ),
                                       ],
                                     ),
-                                    if (data.containsKey('status'))
-                                      Container(
-                                        margin:
-                                            const EdgeInsets.only(bottom: 30),
-                                        decoration: BoxDecoration(
-                                          color: const Color.fromARGB(
-                                              255, 25, 221, 34),
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                        ),
-                                        height: 15,
-                                        width: 40,
-                                        child: Text(
-                                          data['status'],
-                                          textAlign: TextAlign.center,
-                                          style: basicTextStyle.copyWith(
-                                            fontSize: 10,
-                                            fontWeight: light,
-                                          ),
-                                        ),
-                                      ),
-                                  ],
-                                ),
-                              ),
-                              Container(
-                                decoration: const BoxDecoration(
-                                  color: Color.fromARGB(255, 197, 194, 194),
-                                  borderRadius: BorderRadius.only(
-                                    bottomRight: Radius.circular(20),
-                                    bottomLeft: Radius.circular(20),
-                                  ),
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(16.0),
-                                  child: Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        data['footer1'],
-                                        style: basicTextStyle.copyWith(
-                                          fontSize: 12,
-                                          fontWeight: light,
-                                        ),
-                                      ),
-                                      if (data.containsKey('footer2'))
-                                        Text(
-                                          data['footer2'],
-                                          style: basicTextStyle.copyWith(
-                                            fontSize: 12,
-                                            fontWeight: light,
-                                          ),
-                                        ),
-                                      if (data.containsKey('poin'))
-                                        Text(
-                                          'Poin : ${data['poin']}',
-                                          style: basicTextStyle.copyWith(
-                                            fontSize: 12,
-                                            fontWeight: light,
-                                          ),
-                                        )
-                                    ],
-                                  ),
-                                ),
-                              )
-                            ],
+                                  )
+                              ],
+                            ),
                           ),
                         ),
-                      );
-                    },
+                      ),
+                    ),
                   ),
                 ),
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+              Pickupnow(),
+              Visitnow(),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  InkWell(
-                    onTap: () {
-                      Navigator.pushReplacementNamed(context, ProfileScreen.id);
-                    },
-                    child: const CustomCard(
-                      imagePath: 'assets/icon/profileh.png',
-                      text: 'Profile',
+                  const Padding(
+                    padding: EdgeInsets.all(9.0),
+                    child: Text(
+                      'Fitur',
+                      style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w800,
+                      ),
                     ),
                   ),
-                  InkWell(
-                    onTap: () {
-                      Navigator.pushReplacementNamed(
-                          context, SPPPaymentrecScreen.id);
-                    },
-                    child: const CustomCard(
-                      imagePath: 'assets/icon/paymenth.png',
-                      text: 'SPP & Pembayaran',
-                    ),
+                  Wrap(
+                    spacing: 8.0, // Horizontal spacing between the buttons
+                    runSpacing:
+                        8.0, // Vertical spacing between the rows of buttons
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.pushReplacementNamed(
+                              context, ProfileScreen.id);
+                        },
+                        child: CustomButton(
+                          imagePath: 'assets/icon/profileh.png',
+                          text: 'Profil',
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.pushReplacementNamed(
+                              context, SPPPaymentrecScreen.id);
+                        },
+                        child: CustomButton(
+                          imagePath: 'assets/icon/paymenth.png',
+                          text: 'SPP & Pembayaran',
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.pushReplacementNamed(
+                              context, PocketmoneyrecScreen.id);
+                        },
+                        child: CustomButton(
+                          imagePath: 'assets/icon/waleth.png',
+                          text: 'Uang Saku',
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.pushReplacementNamed(
+                              context, ArchievpointsrecScreen.id);
+                        },
+                        child: CustomButton(
+                          imagePath: 'assets/icon/archivementh.png',
+                          text: 'Point Prestasi',
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.pushReplacementNamed(
+                              context, RaportsScreen.id);
+                        },
+                        child: CustomButton(
+                          imagePath: 'assets/icon/academixgradesh.png',
+                          text: 'Nilai Akademik Diniah',
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.pushReplacementNamed(
+                              context, PickupregisformScreen.id);
+                        },
+                        child: CustomButton(
+                          imagePath: 'assets/icon/pickuph.png',
+                          text: 'Daftar Penjemputan',
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.pushReplacementNamed(
+                              context, VisitregisformScreen.id);
+                        },
+                        child: CustomButton(
+                          imagePath: 'assets/icon/visith.png',
+                          text: 'Daftar Kunjungan',
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  InkWell(
-                    onTap: () {
-                      Navigator.pushReplacementNamed(
-                          context, PocketmoneyrecScreen.id);
-                    },
-                    child: const CustomCard(
-                      imagePath: 'assets/icon/waleth.png',
-                      text: 'Uang Saku',
-                    ),
-                  ),
-                  InkWell(
-                    onTap: () {
-                      Navigator.pushReplacementNamed(
-                          context, ArchievpointsrecScreen.id);
-                    },
-                    child: const CustomCard(
-                      imagePath: 'assets/icon/archivementh.png',
-                      text: 'Point Prestasi',
-                    ),
-                  ),
-                ],
+              const SizedBox(
+                height: 20,
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  InkWell(
-                    onTap: () {Navigator.pushReplacementNamed(
-                          context, RaportsScreen.id);},
-                    child: const CustomCard(
-                      imagePath: 'assets/icon/academixgradesh.png',
-                      text: 'Nilai Akademik Diniah',
+              Padding(
+                padding: const EdgeInsets.all(7.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.only(left: 10),
+                      child: Text(
+                        'Berita Terbaru',
+                        style: TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
                     ),
-                  ),
-                  InkWell(
-                    onTap: () {
-                      Navigator.pushReplacementNamed(
-                          context, PickupregisformScreen.id);
-                    },
-                    child: const CustomCard(
-                      imagePath: 'assets/icon/pickuph.png',
-                      text: 'Daftar Penjemputan',
-                    ),
-                  ),
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  InkWell(
-                    onTap: () {
-                      Navigator.pushReplacementNamed(
-                          context, VisitregisformScreen.id);
-                    },
-                    child: const CustomCard(
-                      imagePath: 'assets/icon/visith.png',
-                      text: 'Daftar Kunjungan',
-                    ),
-                  ),
-                ],
+                    const SizedBox(height: 10),
+                    News(),
+                  ],
+                ),
               ),
             ],
           ),
@@ -358,51 +412,183 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-class CustomCard extends StatelessWidget {
+class CustomButton extends StatefulWidget {
   final String imagePath;
   final String text;
 
-  const CustomCard({
-    required this.imagePath,
-    required this.text,
-  });
+  CustomButton({required this.imagePath, required this.text});
+
+  @override
+  _CustomButtonState createState() => _CustomButtonState();
+}
+
+class _CustomButtonState extends State<CustomButton> {
+  bool _isVisible = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Add a delay before showing the button to create the appear effect
+    Future.delayed(const Duration(milliseconds: 300), () {
+      setState(() {
+        _isVisible = true;
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
+    return AnimatedOpacity(
+      duration: const Duration(milliseconds: 500),
+      opacity: _isVisible ? 1.0 : 0.0,
       child: Container(
-        height: 180,
-        width: 180,
-        child: Card(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-          elevation: 4,
-          color: Colors.green, // Ubah warna latar belakang Card menjadi hijau
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              CircleAvatar(
-                radius: 40,
-                backgroundColor: Colors
-                    .white, // Ubah warna latar belakang lingkaran menjadi putih
+        height: 110,
+        width: 90,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Material(
+              elevation: 3, // Adjust the elevation value as needed
+              shape: const CircleBorder(),
+              child: CircleAvatar(
+                radius: 37,
+                backgroundColor: backgroundCard1,
                 child: Image.asset(
-                  imagePath,
-                  width: 55, // Ubah lebar aset menjadi 60
-                  height: 55, // Ubah tinggi aset menjadi 60
+                  widget.imagePath,
+                  width: 30,
+                  height: 30,
                 ),
               ),
-              const SizedBox(height: 12),
-              Text(
-                text,
-                style: primaryTextStyle.copyWith(
-                  fontSize: 13,
-                  fontWeight: bold,
+            ),
+            const SizedBox(height: 5),
+            Flexible(
+              child: Text(
+                widget.text,
+                textAlign: TextAlign.center,
+                style: basicTextStyle.copyWith(
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
+    );
+  }
+}
+
+class News extends StatelessWidget {
+  News({Key? key}) : super(key: key);
+
+  final List<Map<String, dynamic>> newsData = [
+    {
+      'imagePath': 'assets/parenting-wali-siswa.png',
+      'title': 'Parenting Wali Siswa',
+      'content':
+          'Kegiatan seminar parenting bagi para wali siswa untuk menjalin ikatan yang kuat antara sekolah dengan wali siswa dan juga mensinergikan kegiatan proses pembelajaran.',
+      'link': 'https://www.bpibs.sch.id/detail/parenting-wali-siswa',
+    },
+    {
+      'imagePath': 'assets/20200922_sma-bpibs-goes-to-campus-2019.jpg',
+      'title': 'SMA BPIBS Goes To Campus 2019',
+      'content':
+          'Goes to campus adalah suatu kegiatan yang diadakan di sekolah dimana para siswa akan dibawa ke berbagai perguruan tinggi negeri selama satu hari atau lebih. Dimana adanya kegiatan ini, para siswa',
+      'link': 'https://www.bpibs.sch.id/detail/sma-bpibs-goes-to-campus-2019',
+    },
+
+    // Add more dummy data here...
+  ];
+
+  String _truncateString(String text) {
+    const int maxChars = 100;
+    if (text.length > maxChars) {
+      return '${text.substring(0, maxChars)}.... read more';
+    }
+    return text;
+  }
+
+  Future<void> _launchURL(String url) async {
+    if (await canLaunch(url)) {
+      await launch(
+        url,
+        forceWebView:
+            false, // Set this to false to open in the external browser
+        universalLinksOnly: true, // Optional parameter for deep links
+      );
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: newsData.length,
+      itemBuilder: (context, index) {
+        return GestureDetector(
+          onTap: () {
+            _launchURL(newsData[index]
+                ['link']); // Call the method to open the web link
+          },
+          child: Card(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            elevation: 4.0,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Expanded(
+                  flex: 2,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(6),
+                    child: Image.asset(
+                      newsData[index]['imagePath'],
+                      fit: BoxFit.contain,
+                      // loadingBuilder: (context, child, loadingProgress) {
+                      //   if (loadingProgress == null) return child;
+                      //   return CircularProgressIndicator();
+                      // },
+                      // errorBuilder: (context, error, stackTrace) {
+                      //   return Icon(Icons
+                      //       .error); // or any other error indicator you want
+                      // },
+                    ),
+                  ),
+                ),
+                Expanded(
+                  flex: 3,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          newsData[index]['title'],
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          _truncateString(newsData[index]['content']),
+                          style: const TextStyle(fontSize: 14),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }
@@ -423,10 +609,10 @@ Widget drawerWidget(BuildContext context) {
                 'assets/Logo.png',
                 width: 150,
               ),
-              Text(
+              const Text(
                 'Bintang Pelajar Boarding School',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: Color.fromARGB(255, 0, 0, 0),
                   fontSize: 14,
                 ),
               ),
@@ -434,31 +620,31 @@ Widget drawerWidget(BuildContext context) {
           ),
         ),
         ListTile(
-          leading: Icon(Icons.lightbulb),
-          title: Text('Suggestions and Critics'),
+          leading: const Icon(Icons.lightbulb),
+          title: const Text('Saran dan Kritik'),
           onTap: () {
             Navigator.pushReplacementNamed(
                 context, SuggestionsAndCriticsScreen.id);
           },
         ),
         ListTile(
-          leading: Icon(Icons.info),
-          title: Text('Information'),
+          leading: const Icon(Icons.info),
+          title: const Text('Informasi'),
           onTap: () {
             Navigator.pushReplacementNamed(context, InformationScreen.id);
           },
         ),
         ListTile(
-          leading: Icon(Icons.lock),
-          title: Text('Change Password'),
+          leading: const Icon(Icons.lock),
+          title: const Text('Ubah Password'),
           onTap: () {
             Navigator.pushReplacementNamed(context, ChangepassScreen.id);
           },
         ),
-        Divider(),
+        const Divider(),
         ListTile(
-          leading: Icon(Icons.logout),
-          title: Text('Logout'),
+          leading: const Icon(Icons.logout),
+          title: const Text('Keluar'),
           onTap: () {
             Navigator.popAndPushNamed(context, LoginScreen.id);
           },

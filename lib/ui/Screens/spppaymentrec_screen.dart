@@ -1,3 +1,5 @@
+import 'package:bpibs/services/api_service.dart';
+import 'package:bpibs/ui/widgets/DialogShow.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
@@ -11,10 +13,10 @@ class SPPPaymentrecScreen extends StatefulWidget {
   const SPPPaymentrecScreen({Key? key}) : super(key: key);
 
   @override
-  _SPPPaymentrecScreenState createState() => _SPPPaymentrecScreenState();
+  SPPPaymentrecScreenState createState() => SPPPaymentrecScreenState();
 }
 
-class _SPPPaymentrecScreenState extends State<SPPPaymentrecScreen> {
+class SPPPaymentrecScreenState extends State<SPPPaymentrecScreen> {
   String currentYear = DateFormat('yyyy').format(DateTime.now());
   List<dynamic> pembayaranSPP = []; // Data pembayaran SPP
 
@@ -33,8 +35,7 @@ class _SPPPaymentrecScreenState extends State<SPPPaymentrecScreen> {
         String nis = profile['nis'];
 
         final response = await http.post(
-          Uri.parse(
-              'http://192.168.1.2/mybpibs-api/api/api.php'), // Ganti URL dengan alamat api.php
+          Uri.parse(api), // Ganti URL dengan alamat api.php
           body: {'action': 'pembayaran_spp_get', 'nis': nis},
         );
 
@@ -45,34 +46,19 @@ class _SPPPaymentrecScreenState extends State<SPPPaymentrecScreen> {
               pembayaranSPP = jsonResponse['pembayaranSPP'];
             });
           } else {
-            showErrorDialog(jsonResponse['message']);
+            showErrorDialog(context, jsonResponse['message'], () {
+              Navigator.of(context).pop();
+              Navigator.of(context).pushNamed(HomeScreen.id);
+            });
           }
-        } else {
-          showErrorDialog('Terjadi masalah pada server.');
         }
       }
     } catch (e) {
-      showErrorDialog('Terjadi masalah pada koneksi.');
+      showErrorDialog(context, 'Terjadi masalah pada koneksi.', () {
+        Navigator.of(context).pop();
+        Navigator.of(context).pushNamed(HomeScreen.id);
+      });
     }
-  }
-
-  void showErrorDialog(String message) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text('Error'),
-        content: Text(message),
-        actions: <Widget>[
-          TextButton(
-            child: Text('Okay'),
-            onPressed: () {
-              Navigator.of(ctx).pop();
-              Navigator.pushReplacementNamed(context, HomeScreen.id);
-            },
-          ),
-        ],
-      ),
-    );
   }
 
   @override
@@ -85,12 +71,14 @@ class _SPPPaymentrecScreenState extends State<SPPPaymentrecScreen> {
     }
 
     return Scaffold(
+      backgroundColor: backgroundColor1,
       appBar: AppBar(
         backgroundColor: backgroundColor1,
         elevation: 0,
         toolbarHeight: 100, // Set a specific height for the toolbar
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_outlined),
+          color: Colors.black,
           onPressed: () {
             Navigator.popAndPushNamed(context, HomeScreen.id);
           },
@@ -144,7 +132,7 @@ class _SPPPaymentrecScreenState extends State<SPPPaymentrecScreen> {
 
     return Padding(
       padding: const EdgeInsets.all(15.0),
-      child: Container(
+      child: SizedBox(
         height: 160,
         width: 160,
         child: Card(

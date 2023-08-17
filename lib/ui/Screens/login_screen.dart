@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:bpibs/services/api_service.dart';
+import 'package:bpibs/ui/widgets/DialogShow.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
@@ -26,7 +28,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> loginUser(String nis, String password) async {
     if (nis.isEmpty || password.isEmpty) {
-      showErrorDialog('Username atau password belum diinput.');
+      showErrorDialog(context, 'Username atau password belum diinput.', () {
+        Navigator.of(context).pop();
+      });
       return;
     }
 
@@ -36,7 +40,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     try {
       final response = await http.post(
-        Uri.parse('http://192.168.1.2/mybpibs-api/api/api.php'),
+        Uri.parse(api),
         body: {
           'action': 'login',
           'nis': nis,
@@ -53,41 +57,27 @@ class _LoginScreenState extends State<LoginScreen> {
         if (jsonResponse['status'] == 'success') {
           SharedPreferences prefs = await SharedPreferences.getInstance();
           prefs.setString('userProfile', json.encode(jsonResponse['profile']));
-
           // Menyimpan nis di SharedPreferences
           prefs.setString('nis', nis);
-
           Navigator.pushReplacementNamed(context, HomeScreen.id);
         } else {
-          showErrorDialog(jsonResponse['message']);
+          showErrorDialog(context, jsonResponse['message'], () {
+            Navigator.of(context).pop();
+          });
         }
       } else {
-        showErrorDialog('Terjadi masalah pada server.');
+        showErrorDialog(context, 'Terjadi masalah pada server.', () {
+          Navigator.of(context).pop();
+        });
       }
     } catch (e) {
       setState(() {
         isLoading = false;
       });
-      showErrorDialog('Terjadi masalah pada koneksi.');
+      showErrorDialog(context, 'Terjadi masalah pada koneksi.', () {
+        Navigator.of(context).pop();
+      });
     }
-  }
-
-  void showErrorDialog(String message) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Error'),
-        content: Text(message),
-        actions: <Widget>[
-          TextButton(
-            child: const Text('Okay'),
-            onPressed: () {
-              Navigator.of(ctx).pop();
-            },
-          ),
-        ],
-      ),
-    );
   }
 
   @override
@@ -163,7 +153,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               const SizedBox(
                                 height: 20,
                               ),
-                              footer(context),
+                              // footer(context),
                             ],
                           ),
                         ),
@@ -234,6 +224,14 @@ class _LoginScreenState extends State<LoginScreen> {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(30.0),
         color: buttonColor1,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.5), // Shadow color
+            spreadRadius: 2,
+            blurRadius: 5,
+            offset: Offset(0, 3), // Shadow position [horizontal, vertical]
+          ),
+        ],
       ),
       child: TextButton(
         onPressed: isLoading
@@ -245,7 +243,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 );
               },
         child: isLoading
-            ? CircularProgressIndicator()
+            ? const CircularProgressIndicator()
             : const Text(
                 'Sign In',
                 style: TextStyle(
@@ -268,6 +266,7 @@ class CustomTextField extends StatelessWidget {
   final Widget? suffixIcon;
 
   const CustomTextField({
+    super.key,
     required this.size,
     required this.controller,
     required this.hintText,
@@ -284,6 +283,10 @@ class CustomTextField extends StatelessWidget {
       width: 300,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(40.0),
+        border: Border.all(
+          color: Colors.black, // You can change the border color here
+          width: 1.0, // You can adjust the border width here
+        ),
         color: inputColor1,
       ),
       child: Padding(
@@ -293,7 +296,7 @@ class CustomTextField extends StatelessWidget {
           children: <Widget>[
             Icon(
               icon,
-              color: const Color.fromRGBO(102, 102, 102, 0.8),
+              color: basicTextColor,
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -305,14 +308,14 @@ class CustomTextField extends StatelessWidget {
                 obscureText: obscureText,
                 style: GoogleFonts.inter(
                   fontSize: 14.0,
-                  color: const Color.fromARGB(179, 0, 0, 0),
+                  color: basicTextColor,
                   fontWeight: FontWeight.w500,
                 ),
                 decoration: InputDecoration(
                   hintText: hintText,
                   hintStyle: GoogleFonts.inter(
                     fontSize: 14.0,
-                    color: inputColor4,
+                    color: secondaryTextColor,
                     fontWeight: FontWeight.w500,
                   ),
                   border: InputBorder.none,

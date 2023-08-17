@@ -1,20 +1,30 @@
+import 'dart:async';
+import 'dart:convert';
+import 'package:bpibs/services/api_service.dart';
+import 'package:bpibs/ui/screens/suggestionsandcritics_screen.dart';
+import 'package:bpibs/ui/widgets/DialogShow.dart';
+import 'package:bpibs/ui/widgets/buildButton_widget.dart';
+import 'package:bpibs/ui/widgets/buildDropdownButton_widget.dart';
+import 'package:bpibs/ui/widgets/buildTextField_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
-
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../constants/const.dart';
-import 'home_screen.dart';
 
 class CriticsformScreen extends StatefulWidget {
   static const id = 'CriticsformScreen';
 
+  const CriticsformScreen({Key? key}) : super(key: key);
+
   @override
-  _CriticsformScreenState createState() => _CriticsformScreenState();
+  CriticsformScreenState createState() => CriticsformScreenState();
 }
 
-class _CriticsformScreenState extends State<CriticsformScreen> {
-  String? selectedLocation;
-  String? selectedTime;
+class CriticsformScreenState extends State<CriticsformScreen> {
+  String? selectedDivisi;
+  String? selectedCategory;
+  TextEditingController subjectController = TextEditingController();
+  TextEditingController messageController = TextEditingController();
 
   Map<String, List<String>> categoryOptions = {
     'SMA': ['Akademik', 'Kunjungan', 'Jadwal', 'Lainnya'],
@@ -38,7 +48,59 @@ class _CriticsformScreenState extends State<CriticsformScreen> {
     ],
   };
 
-  TextEditingController whatsappController = TextEditingController();
+  Future<void> registerCriticsSuggestion(
+    String nis,
+    String divisi,
+    String kategori,
+    String subjek,
+    String pesan,
+  ) async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? userProfile = prefs.getString('userProfile');
+      if (userProfile != null) {
+        Map<String, dynamic> profile = json.decode(userProfile);
+        nis = profile['nis'];
+
+        final response = await http.post(
+          Uri.parse(api),
+          body: {
+            'action': 'kritik_saran_input',
+            'nis': nis,
+            'divisi': divisi,
+            'kategori': kategori,
+            'subjek': subjek,
+            'pesan': pesan,
+          },
+        );
+
+        if (response.statusCode == 200) {
+          var jsonResponse = jsonDecode(response.body);
+          if (jsonResponse['status'] == 'success') {
+            // Data berhasil disimpan, tampilkan dialog sukses
+            showSuccessDialog(context, jsonResponse['message'], () {
+              Navigator.of(context).pop();
+              Navigator.of(context).pushNamed(SuggestionsAndCriticsScreen.id);
+            });
+          } else {
+            // Gagal menambahkan data
+            showErrorDialog(context, jsonResponse['message'], () {
+              Navigator.of(context).pop();
+            });
+          }
+        } else {
+          // Terjadi masalah pada server
+          showErrorDialog(context, 'Terjadi masalah pada server.', () {
+            Navigator.of(context).pop();
+          });
+        }
+      }
+    } catch (e) {
+      showErrorDialog(context, 'Terjadi masalah pada koneksi.', () {
+        Navigator.of(context).pop();
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,12 +114,13 @@ class _CriticsformScreenState extends State<CriticsformScreen> {
         toolbarHeight: 100,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_outlined),
+          color: Colors.black,
           onPressed: () {
-            Navigator.popAndPushNamed(context, HomeScreen.id);
+            Navigator.popAndPushNamed(context, SuggestionsAndCriticsScreen.id);
           },
         ),
         title: const Text(
-          'Form Pendaftaran Kunjungan Wali Siswa',
+          'Kritik dan Saran',
           style: TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.bold,
@@ -72,31 +135,8 @@ class _CriticsformScreenState extends State<CriticsformScreen> {
           children: [
             Container(
               width: double.infinity,
-              margin: EdgeInsets.all(20),
-              padding: EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: backgroundCard1,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Faiz athaya ramadhan',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(height: 10),
-                  Text('Periode kunjungan : Ahad,14 mei 2024'),
-                ],
-              ),
-            ),
-            Container(
-              width: double.infinity,
-              margin: EdgeInsets.all(20),
-              padding: EdgeInsets.all(20),
+              margin: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: backgroundCard1,
                 borderRadius: BorderRadius.circular(10),
@@ -107,90 +147,81 @@ class _CriticsformScreenState extends State<CriticsformScreen> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Lokasi Kunjungan',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      buildDropdownButton(
-                        value: selectedLocation,
+                      BuildDropdownButton(
+                        size: size,
+                        value: selectedDivisi,
                         onChanged: (value) {
                           setState(() {
-                            selectedLocation = value;
-                            selectedTime = null;
+                            selectedDivisi = value;
+                            selectedCategory = null;
                           });
                         },
-                        items:
-                            categoryOptions.keys.map<DropdownMenuItem<String>>(
-                          (String category) {
-                            return DropdownMenuItem<String>(
-                              value: category,
-                              child: Text(category),
-                            );
-                          },
-                        ).toList(),
-                        hintText: 'Pilih lokasi kunjungan',
+                        items: categoryOptions.keys
+                            .map<DropdownMenuItem<String>>(
+                              (String category) => DropdownMenuItem<String>(
+                                value: category,
+                                child: Text(category),
+                              ),
+                            )
+                            .toList(),
+                        labelText: 'Bidang Terkait',
+                        hintText: 'Silakan Pilih',
                       ),
-                      const SizedBox(height: 16),
-                      const Text(
-                        'Waktu Kunjungan',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      selectedLocation != null
-                          ? buildDropdownButton(
-                              value: selectedTime,
+                      selectedDivisi != null
+                          ? BuildDropdownButton(
+                              size: size,
+                              value: selectedCategory,
                               onChanged: (value) {
                                 setState(() {
-                                  selectedTime = value;
+                                  selectedCategory = value;
                                 });
                               },
-                              items: categoryOptions[selectedLocation!]!
+                              items: categoryOptions[selectedDivisi!]!
                                   .map<DropdownMenuItem<String>>(
-                                (String category) {
-                                  return DropdownMenuItem<String>(
-                                    value: category,
-                                    child: Text(category),
-                                  );
-                                },
-                              ).toList(),
-                              hintText: 'Pilih waktu kunjungan',
+                                    (String category) =>
+                                        DropdownMenuItem<String>(
+                                      value: category,
+                                      child: Text(category),
+                                    ),
+                                  )
+                                  .toList(),
+                              labelText: 'Kategori',
+                              hintText: 'Silakan Pilih',
                             )
                           : const SizedBox(),
-                      const SizedBox(height: 16),
-                      const Text(
-                        'No Whatsapp',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
+                      BuildTextField(
+                        controller: subjectController,
+                        labelText: 'Masukkan Judul',
+                        size: size,
+                        maxLines: null,
                       ),
-                      buildTextField(
-                        controller: whatsappController,
-                        keyboardType: TextInputType.number,
-                        inputFormatters: <TextInputFormatter>[
-                          FilteringTextInputFormatter.digitsOnly
-                        ],
-                        hintText: 'Masukkan No Whatsapp',
+                      BuildTextField(
+                        controller: messageController,
+                        labelText: 'Pesan Anda',
+                        size: size,
+                        maxLines: null,
                       ),
-                      const SizedBox(height: 16),
-                      const Text(
-                        'Alamat',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
+                      BuildButton(
+                        width: double.infinity,
+                        height: size.height / 16,
+                        onTap: () {
+                          String nis = ''; // Update with the actual nis value
+                          String subject = subjectController.text;
+                          String message = messageController.text;
+                          if (selectedDivisi != null &&
+                              selectedCategory != null) {
+                            registerCriticsSuggestion(nis, selectedDivisi!,
+                                selectedCategory!, subject, message);
+                          } else {
+                            showErrorDialog(
+                                context, 'Mohon lengkapi data yang diperlukan.',
+                                () {
+                              Navigator.of(context).pop();
+                            });
+                          }
+                        },
+                        label: 'Kirim',
                       ),
-                      buildMultilineTextField(
-                        keyboardType: TextInputType.multiline,
-                        hintText: 'Masukkan Alamat',
-                      ),
-                      const SizedBox(height: 16),
-                      Center(child: kirimButton(size)),
                     ],
                   ),
                 ],
@@ -198,188 +229,6 @@ class _CriticsformScreenState extends State<CriticsformScreen> {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget buildDropdownButton({
-    required String? value,
-    required Function(String?) onChanged,
-    required List<DropdownMenuItem<String>> items,
-    required String hintText,
-  }) {
-    return Container(
-      width: double.infinity,
-      height: 50,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10.0),
-        border: Border.all(
-          color: Colors.grey,
-          width: 1.0,
-        ),
-        color: Colors.white,
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        child: DropdownButton<String>(
-          value: value,
-          onChanged: onChanged,
-          underline: const SizedBox(),
-          isExpanded: true,
-          items: items,
-          hint: Text(hintText),
-        ),
-      ),
-    );
-  }
-
-  Widget buildTextField({
-    required TextEditingController controller,
-    required TextInputType keyboardType,
-    required List<TextInputFormatter> inputFormatters,
-    required String hintText,
-  }) {
-    return Container(
-      width: double.infinity,
-      height: 50,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10.0),
-        border: Border.all(
-          color: Colors.grey,
-          width: 1.0,
-        ),
-        color: Colors.white,
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        child: TextField(
-          controller: controller,
-          keyboardType: keyboardType,
-          inputFormatters: inputFormatters,
-          style: const TextStyle(
-            fontSize: 14.0,
-            color: Colors.black,
-            fontWeight: FontWeight.w500,
-          ),
-          decoration: InputDecoration(
-            hintText: hintText,
-            hintStyle: const TextStyle(
-              fontSize: 14.0,
-              color: Colors.grey,
-              fontWeight: FontWeight.w500,
-            ),
-            border: InputBorder.none,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget buildMultilineTextField({
-    required TextInputType keyboardType,
-    required String hintText,
-  }) {
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10.0),
-        border: Border.all(
-          color: Colors.grey,
-          width: 1.0,
-        ),
-        color: Colors.white,
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-        child: TextField(
-          maxLines: null,
-          keyboardType: keyboardType,
-          style: const TextStyle(
-            fontSize: 14.0,
-            color: Colors.black,
-            fontWeight: FontWeight.w500,
-          ),
-          decoration: InputDecoration(
-            hintText: hintText,
-            hintStyle: const TextStyle(
-              fontSize: 14.0,
-              color: Colors.grey,
-              fontWeight: FontWeight.w500,
-            ),
-            border: InputBorder.none,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget kirimButton(Size size) {
-    return Container(
-      width: 300,
-      height: size.height / 16,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(30.0),
-        color: buttonColor1,
-      ),
-      child: TextButton(
-        onPressed: () {
-          String whatsapp = whatsappController.text;
-          if (selectedLocation != null && selectedTime != null) {
-            // Panggil fungsi untuk mengirim data
-            _sendData(selectedLocation!, selectedTime!, whatsapp);
-          } else {
-            showErrorDialog('Mohon lengkapi data yang diperlukan.');
-          }
-        },
-        child: const Text(
-          'Kirim',
-          style: TextStyle(
-            fontSize: 18,
-            color: Colors.white,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-      ),
-    );
-  }
-
-  void _sendData(String location, String time, String whatsapp) {
-    // Implementasikan logika untuk mengirim data ke server atau melakukan tindakan lain
-    // Misalnya, tampilkan dialog sukses dan navigasi ke halaman lain
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Success'),
-        content: const Text('Data berhasil dikirim.'),
-        actions: <Widget>[
-          TextButton(
-            child: const Text('Okay'),
-            onPressed: () {
-              Navigator.of(ctx).pop();
-              // Navigasi ke halaman beranda
-              Navigator.of(context).pushNamed(HomeScreen.id);
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  void showErrorDialog(String message) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Error'),
-        content: Text(message),
-        actions: <Widget>[
-          TextButton(
-            child: const Text('Okay'),
-            onPressed: () {
-              Navigator.of(ctx).pop();
-            },
-          ),
-        ],
       ),
     );
   }
