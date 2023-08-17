@@ -1,4 +1,6 @@
 import 'package:bpibs/services/api_service.dart';
+import 'package:bpibs/ui/widgets/BuildButton_Widget.dart';
+import 'package:bpibs/ui/widgets/DialogShow.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -53,33 +55,20 @@ class _SuggestionsAndCriticsScreenState
         setState(() {
           isLoading = false;
         });
-        showErrorDialog(jsonResponse['message']);
+        showErrorDialog(context, jsonResponse['message'], () {
+          Navigator.of(context).pop();
+          Navigator.pushReplacementNamed(context, CriticsformScreen.id);
+        });
       }
     } else {
       setState(() {
         isLoading = false;
       });
-      showErrorDialog('Failed to connect to the server.');
+      showErrorDialog(context, 'Terjadi masalah pada server.', () {
+        Navigator.of(context).pop();
+        Navigator.pushReplacementNamed(context, CriticsformScreen.id);
+      });
     }
-  }
-
-  void showErrorDialog(String message) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Error'),
-        content: Text(message),
-        actions: <Widget>[
-          TextButton(
-            child: const Text('Okay'),
-            onPressed: () {
-              Navigator.of(ctx).pop();
-              Navigator.pushReplacementNamed(context, CriticsformScreen.id);
-            },
-          ),
-        ],
-      ),
-    );
   }
 
   @override
@@ -92,6 +81,7 @@ class _SuggestionsAndCriticsScreenState
         toolbarHeight: 100,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_outlined),
+          color: Colors.black,
           onPressed: () {
             Navigator.popAndPushNamed(context, HomeScreen.id);
           },
@@ -183,11 +173,13 @@ class TicketDetailDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Size size = MediaQuery.of(context).size;
+
     return Dialog(
       backgroundColor: Colors.transparent,
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: backgroundColor1,
           borderRadius: BorderRadius.circular(12),
         ),
         padding: const EdgeInsets.all(16),
@@ -225,15 +217,14 @@ class TicketDetailDialog extends StatelessWidget {
               style: const TextStyle(fontSize: 16),
             ),
             const SizedBox(height: 16),
-            Align(
-              alignment: Alignment.center,
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: const Text('Close'),
-              ),
-            ),
+            BuildButton(
+              width: double.infinity,
+              height: size.height / 16,
+              label: 'Close',
+              onTap: () {
+                Navigator.of(context).pop();
+              },
+            )
           ],
         ),
       ),

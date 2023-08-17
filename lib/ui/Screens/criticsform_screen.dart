@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:bpibs/services/api_service.dart';
 import 'package:bpibs/ui/screens/suggestionsandcritics_screen.dart';
+import 'package:bpibs/ui/widgets/DialogShow.dart';
 import 'package:bpibs/ui/widgets/buildButton_widget.dart';
 import 'package:bpibs/ui/widgets/buildDropdownButton_widget.dart';
 import 'package:bpibs/ui/widgets/buildTextField_widget.dart';
@@ -77,50 +78,28 @@ class CriticsformScreenState extends State<CriticsformScreen> {
           var jsonResponse = jsonDecode(response.body);
           if (jsonResponse['status'] == 'success') {
             // Data berhasil disimpan, tampilkan dialog sukses
-            showDialog(
-              context: context,
-              barrierDismissible: false,
-              builder: (ctx) => AlertDialog(
-                title: const Text('Sukses'),
-                content: Text(jsonResponse['message']),
-              ),
-            );
-
-            // Menunggu selama 5 detik sebelum pindah ke layar beranda
-            Timer(const Duration(seconds: 2), () {
+            showSuccessDialog(context, jsonResponse['message'], () {
               Navigator.of(context).pop();
               Navigator.of(context).pushNamed(SuggestionsAndCriticsScreen.id);
             });
           } else {
             // Gagal menambahkan data
-            showErrorDialog(jsonResponse['message']);
+            showErrorDialog(context, jsonResponse['message'], () {
+              Navigator.of(context).pop();
+            });
           }
         } else {
           // Terjadi masalah pada server
-          showErrorDialog('Terjadi masalah pada server.');
+          showErrorDialog(context, 'Terjadi masalah pada server.', () {
+            Navigator.of(context).pop();
+          });
         }
       }
     } catch (e) {
-      showErrorDialog('Terjadi masalah pada koneksi.');
+      showErrorDialog(context, 'Terjadi masalah pada koneksi.', () {
+        Navigator.of(context).pop();
+      });
     }
-  }
-
-  void showErrorDialog(String message) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Error'),
-        content: Text(message),
-        actions: <Widget>[
-          TextButton(
-            child: const Text('Okay'),
-            onPressed: () {
-              Navigator.of(ctx).pop();
-            },
-          ),
-        ],
-      ),
-    );
   }
 
   @override
@@ -135,6 +114,7 @@ class CriticsformScreenState extends State<CriticsformScreen> {
         toolbarHeight: 100,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_outlined),
+          color: Colors.black,
           onPressed: () {
             Navigator.popAndPushNamed(context, SuggestionsAndCriticsScreen.id);
           },
@@ -234,7 +214,10 @@ class CriticsformScreenState extends State<CriticsformScreen> {
                                 selectedCategory!, subject, message);
                           } else {
                             showErrorDialog(
-                                'Mohon lengkapi data yang diperlukan.');
+                                context, 'Mohon lengkapi data yang diperlukan.',
+                                () {
+                              Navigator.of(context).pop();
+                            });
                           }
                         },
                         label: 'Kirim',

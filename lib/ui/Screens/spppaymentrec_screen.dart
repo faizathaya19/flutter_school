@@ -1,4 +1,5 @@
 import 'package:bpibs/services/api_service.dart';
+import 'package:bpibs/ui/widgets/DialogShow.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
@@ -45,32 +46,19 @@ class SPPPaymentrecScreenState extends State<SPPPaymentrecScreen> {
               pembayaranSPP = jsonResponse['pembayaranSPP'];
             });
           } else {
-            showErrorDialog(jsonResponse['message']);
+            showErrorDialog(context, jsonResponse['message'], () {
+              Navigator.of(context).pop();
+              Navigator.of(context).pushNamed(HomeScreen.id);
+            });
           }
         }
       }
     } catch (e) {
-      showErrorDialog('Terjadi masalah pada koneksi.');
+      showErrorDialog(context, 'Terjadi masalah pada koneksi.', () {
+        Navigator.of(context).pop();
+        Navigator.of(context).pushNamed(HomeScreen.id);
+      });
     }
-  }
-
-  void showErrorDialog(String message) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Error'),
-        content: Text(message),
-        actions: <Widget>[
-          TextButton(
-            child: const Text('Okay'),
-            onPressed: () {
-              Navigator.of(ctx).pop();
-              Navigator.pushReplacementNamed(context, HomeScreen.id);
-            },
-          ),
-        ],
-      ),
-    );
   }
 
   @override
@@ -90,6 +78,7 @@ class SPPPaymentrecScreenState extends State<SPPPaymentrecScreen> {
         toolbarHeight: 100, // Set a specific height for the toolbar
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_outlined),
+          color: Colors.black,
           onPressed: () {
             Navigator.popAndPushNamed(context, HomeScreen.id);
           },

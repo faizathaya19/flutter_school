@@ -29,6 +29,14 @@ class BuildButton extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10.0),
             color: buttonColor1,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.5), // Shadow color
+                spreadRadius: 2,
+                blurRadius: 5,
+                offset: Offset(0, 3), // Shadow position [horizontal, vertical]
+              ),
+            ],
           ),
           child: isLoading
               ? const CircularProgressIndicator(

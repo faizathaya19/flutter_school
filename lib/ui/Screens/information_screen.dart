@@ -21,6 +21,7 @@ class InformationScreenState extends State<InformationScreen> {
         toolbarHeight: 100, // Atur tinggi khusus untuk toolbar
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_outlined),
+          color: Colors.black,
           onPressed: () {
             Navigator.popAndPushNamed(context, HomeScreen.id);
           },

@@ -70,7 +70,7 @@ class BuildTextField extends StatelessWidget {
                   hintText: labelText,
                   hintStyle: GoogleFonts.inter(
                     fontSize: 14.0,
-                    color: inputColor4,
+                    color: secondaryTextColor,
                     fontWeight: FontWeight.w500,
                   ),
                   border: InputBorder.none,

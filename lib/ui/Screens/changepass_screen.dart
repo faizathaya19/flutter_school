@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:bpibs/services/api_service.dart';
+import 'package:bpibs/ui/widgets/DialogShow.dart';
 import 'package:bpibs/ui/widgets/buildButton_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -62,52 +63,32 @@ class ChangepassScreenState extends State<ChangepassScreen> {
           var jsonResponse = jsonDecode(response.body);
           if (jsonResponse['status'] == 'success') {
             // Data berhasil disimpan, tampilkan dialog sukses
-            showDialog(
-              context: context,
-              barrierDismissible: false,
-              builder: (ctx) => AlertDialog(
-                title: const Text('Success'),
-                content: Text(jsonResponse['message']),
-              ),
-            );
-
-            // Menunggu selama 5 detik sebelum pindah ke layar beranda
-            Timer(const Duration(seconds: 3), () {
+            showSuccessDialog(context, jsonResponse['message'], () {
               Navigator.of(context).pop();
               Navigator.of(context).pushNamed(HomeScreen.id);
             });
           } else {
             // Gagal menambahkan data
-            showErrorDialog(jsonResponse['message']);
+            showErrorDialog(context, jsonResponse['message'], () {
+              Navigator.of(context).pop();
+            });
           }
         } else {
           // Terjadi masalah pada server
           showErrorDialog(
-              'Terjadi masalah pada server saat mengubah password.');
+              context, 'Terjadi masalah pada server saat mengubah password.',
+              () {
+            Navigator.of(context).pop();
+          });
         }
       }
     } catch (e) {
       // Terjadi masalah pada koneksi
-      showErrorDialog('Terjadi masalah pada koneksi saat mengubah password.');
+      showErrorDialog(
+          context, 'Terjadi masalah pada koneksi saat mengubah password.', () {
+        Navigator.of(context).pop();
+      });
     }
-  }
-
-  void showErrorDialog(String message) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Error'),
-        content: Text(message),
-        actions: <Widget>[
-          TextButton(
-            child: const Text('Okay'),
-            onPressed: () {
-              Navigator.of(ctx).pop();
-            },
-          ),
-        ],
-      ),
-    );
   }
 
   @override
@@ -121,6 +102,7 @@ class ChangepassScreenState extends State<ChangepassScreen> {
         toolbarHeight: 100, // Atur tinggi khusus untuk toolbar
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_outlined),
+          color: Colors.black,
           onPressed: () {
             Navigator.popAndPushNamed(context, HomeScreen.id);
           },
@@ -154,7 +136,6 @@ class ChangepassScreenState extends State<ChangepassScreen> {
           const SizedBox(
             height: 50,
           ),
-  
           Container(
             alignment: Alignment.center,
             height: size.height / 16,

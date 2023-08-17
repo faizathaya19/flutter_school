@@ -52,6 +52,38 @@ class _SplashScreenState extends State<SplashScreen> {
     );
   }
 
+  Widget topbg() {
+    return Positioned.fill(
+      right: -150,
+      child: Opacity(
+        opacity: 0.3,
+        child: Align(
+          alignment: Alignment.topRight,
+          child: Image.asset(
+            'assets/Logo.png',
+            width: 478,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget bottombg() {
+    return Positioned.fill(
+      left: -150,
+      child: Opacity(
+        opacity: 0.3,
+        child: Align(
+          alignment: Alignment.bottomLeft,
+          child: Image.asset(
+            'assets/Logo.png',
+            width: 731,
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget logo(double height_, double width_) {
     return Image.asset(
       'assets/Logo.png',

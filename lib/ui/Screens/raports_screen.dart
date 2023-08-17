@@ -1,5 +1,6 @@
-import 'dart:convert';
 import 'package:bpibs/services/api_service.dart';
+import 'package:bpibs/ui/animations/animation_title.dart';
+import 'package:bpibs/ui/widgets/DialogShow.dart';
 import 'package:bpibs/ui/widgets/buildButton_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -27,43 +28,33 @@ class RaportsScreenState extends State<RaportsScreen> {
   @override
   void initState() {
     super.initState();
-    fetchData();
+    _fetchRaportData();
   }
 
-  Future<void> fetchData() async {
-    setState(() {
-      isLoading = true;
-    });
-
+  Future<void> _fetchRaportData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? nis = prefs.getString('nis');
 
-    final response = await http.post(
-      Uri.parse(api),
-      body: {
-        'action': 'raports_get',
-        'nis': nis,
-      },
-    );
+    try {
+      List<Map<String, dynamic>> raportData =
+          await ApiService.fetchRaportData(nis);
 
-    if (response.statusCode == 200) {
-      final jsonResponse = jsonDecode(response.body);
-      if (jsonResponse['status'] == 'success') {
-        setState(() {
-          raports = List<Map<String, dynamic>>.from(jsonResponse['raports']);
-          isLoading = false;
-        });
-      } else {
-        setState(() {
-          isLoading = false;
-        });
-        showErrorDialog('Failed to fetch raport data.');
-      }
-    } else {
       setState(() {
+        raports = raportData;
         isLoading = false;
       });
-      showErrorDialog('Failed to connect to the server.');
+    } catch (e) {
+      String errorMessage;
+      if (e is http.ClientException) {
+        errorMessage = 'Failed to connect to the server.';
+      } else {
+        errorMessage = 'Failed to fetch raport data: $e';
+      }
+
+      showErrorDialog(context, errorMessage, () {
+        Navigator.of(context).pop();
+        Navigator.of(context).pushNamed(HomeScreen.id);
+      });
     }
   }
 
@@ -80,25 +71,6 @@ class RaportsScreenState extends State<RaportsScreen> {
     });
   }
 
-  void showErrorDialog(String message) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Error'),
-        content: Text(message),
-        actions: <Widget>[
-          TextButton(
-            child: const Text('Okay'),
-            onPressed: () {
-              Navigator.of(ctx).pop();
-              Navigator.pushReplacementNamed(context, HomeScreen.id);
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
@@ -110,17 +82,15 @@ class RaportsScreenState extends State<RaportsScreen> {
         toolbarHeight: 100,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_outlined),
+          color: Colors.black,
           onPressed: () {
             Navigator.popAndPushNamed(context, HomeScreen.id);
           },
         ),
-        title: const Text(
-          'Raports',
-          style: TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.bold,
-            fontSize: 15,
-          ),
+        title: AnimatedTitle(
+          isLoading: isLoading,
+          title: 'Raports',
+          fontsize: 15,
         ),
         centerTitle: true,
       ),

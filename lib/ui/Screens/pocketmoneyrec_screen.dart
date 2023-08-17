@@ -1,4 +1,5 @@
 import 'package:bpibs/services/api_service.dart';
+import 'package:bpibs/ui/widgets/DialogShow.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -37,8 +38,7 @@ class _PocketmoneyrecScreenState extends State<PocketmoneyrecScreen> {
       String nis = profile['nis'];
       try {
         final response = await http.post(
-          Uri.parse(
-              api), // Ganti URL dengan alamat api.php
+          Uri.parse(api), // Ganti URL dengan alamat api.php
           body: {'action': 'uang_saku_get', 'nis': nis},
         );
 
@@ -52,15 +52,24 @@ class _PocketmoneyrecScreenState extends State<PocketmoneyrecScreen> {
               isLoading = false;
             });
           } else {
-            showErrorDialog(jsonResponse['message']);
+            showErrorDialog(context, jsonResponse['message'], () {
+              Navigator.of(context).pop();
+              Navigator.of(context).pushNamed(HomeScreen.id);
+            });
             isLoading = false;
           }
         } else {
-          showErrorDialog('Terjadi masalah pada server.');
+          showErrorDialog(context, 'Terjadi masalah pada server.', () {
+            Navigator.of(context).pop();
+            Navigator.of(context).pushNamed(HomeScreen.id);
+          });
           isLoading = false;
         }
       } catch (e) {
-        showErrorDialog('Terjadi masalah pada koneksi.');
+        showErrorDialog(context, 'Terjadi masalah pada koneksi.', () {
+          Navigator.of(context).pop();
+          Navigator.of(context).pushNamed(HomeScreen.id);
+        });
         isLoading = false;
       }
     }
@@ -76,25 +85,6 @@ class _PocketmoneyrecScreenState extends State<PocketmoneyrecScreen> {
     return total;
   }
 
-  void showErrorDialog(String message) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Error'),
-        content: Text(message),
-        actions: <Widget>[
-          TextButton(
-            child: const Text('Okay'),
-            onPressed: () {
-              Navigator.of(ctx).pop();
-              Navigator.pushReplacementNamed(context, HomeScreen.id);
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final currencyFormat =
@@ -108,6 +98,7 @@ class _PocketmoneyrecScreenState extends State<PocketmoneyrecScreen> {
         toolbarHeight: 100, // Atur tinggi khusus untuk toolbar
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_outlined),
+          color: Colors.black,
           onPressed: () {
             Navigator.popAndPushNamed(context, HomeScreen.id);
           },
@@ -145,12 +136,17 @@ class _PocketmoneyrecScreenState extends State<PocketmoneyrecScreen> {
                           Text(
                             namaLengkap ?? '', // nama lengkap
                             style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.normal,
+                            ),
+                          ),
+                          Text(
+                            'Total Saldo : ${currencyFormat.format(totalSaldo)}',
+                            style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          Text(
-                              'Total Saldo : ${currencyFormat.format(totalSaldo)}'),
                         ],
                       ),
                     ),
@@ -178,8 +174,16 @@ class _PocketmoneyrecScreenState extends State<PocketmoneyrecScreen> {
         padding: const EdgeInsets.only(left: 10, right: 10),
         height: 80,
         decoration: BoxDecoration(
-          color: const Color.fromARGB(255, 234, 237, 240),
+          color: backgroundCard1,
           borderRadius: BorderRadius.circular(8),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.5), // Warna shadow
+              spreadRadius: 2, // Jarak shadow ke kontainer
+              blurRadius: 5, // Besar bayangan blur
+              offset: Offset(0, 3), // Posisi offset dari bayangan (x, y)
+            ),
+          ],
         ),
         child: Padding(
           padding: const EdgeInsets.all(5.0),
@@ -190,7 +194,7 @@ class _PocketmoneyrecScreenState extends State<PocketmoneyrecScreen> {
               Text(
                 saldo['keterangan'],
                 style: const TextStyle(
-                  fontSize: 13,
+                  fontSize: 14,
                   fontWeight: FontWeight.normal,
                 ),
               ),

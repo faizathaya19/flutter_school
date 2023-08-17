@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:bpibs/constants/const.dart';
 import 'package:bpibs/services/api_service.dart';
 import 'package:bpibs/ui/screens/home_screen.dart';
+import 'package:bpibs/ui/widgets/BuildButton_Widget.dart';
+import 'package:bpibs/ui/widgets/DialogShow.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -50,47 +52,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (response.statusCode == 200) {
       // API request berhasil, parsing data respons
       Map<String, dynamic> responseData = json.decode(response.body);
-
       if (responseData['status'] == 'success') {
         // Perbarui profil dengan nomor HP baru
         setState(() {
           profile['no_hp'] = newNoHp;
         });
-
         // Tampilkan pesan sukses atau lakukan tindakan tambahan lainnya
-        showDialog(
-          context: context,
-          builder: (ctx) => AlertDialog(
-            title: const Text('Success'),
-            content: Text(responseData['message']),
-          ),
-        );
+        showSuccessDialog(context, responseData['message'], () {
+          Navigator.of(context).pop();
+        });
       } else {
         // Tampilkan pesan error atau tangani kesalahan
-        showErrorDialog(responseData['message']);
+        showErrorDialog(context, responseData['message'], () {
+          Navigator.of(context).pop();
+        });
       }
     } else {
       // Tampilkan pesan error atau tangani kesalahan
-      showErrorDialog('Terjadi masalah pada server saat memperbarui nomor HP.');
+      showErrorDialog(
+          context, 'Terjadi masalah pada server saat memperbarui nomor HP.',
+          () {
+        Navigator.of(context).pop();
+      });
     }
-  }
-
-  void showErrorDialog(String message) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Error'),
-        content: Text(message),
-        actions: <Widget>[
-          TextButton(
-            child: const Text('Okay'),
-            onPressed: () {
-              Navigator.of(ctx).pop();
-            },
-          ),
-        ],
-      ),
-    );
   }
 
   @override
@@ -104,6 +88,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         toolbarHeight: 100,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_outlined),
+          color: Colors.black,
           onPressed: () {
             Navigator.popAndPushNamed(context, HomeScreen.id);
           },
@@ -185,7 +170,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 'Wali asrama',
                                 '${profile['wali_asrama']}',
                               ),
-                              _buildDivider(),
                             ],
                           ),
                         ),
@@ -219,12 +203,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               _buildSectionButton(
                                 'Update No HP',
                                 onPressed: () {
+                                  final Size size = MediaQuery.of(context).size;
+
                                   showDialog(
                                     context: context,
+                                    barrierDismissible: false,
                                     builder: (BuildContext context) {
-                                      String newNoHp =
-                                          ''; // Tambahkan variabel untuk menyimpan nomor HP baru
+                                      String newNoHp = '';
                                       return AlertDialog(
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                        ),
                                         title: const Text('Update No HP'),
                                         content: TextField(
                                           decoration: const InputDecoration(
@@ -236,19 +226,34 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           },
                                         ),
                                         actions: [
-                                          TextButton(
-                                            onPressed: () {
-                                              updateNoHp(
-                                                  newNoHp); // Panggil fungsi updateNoHp dengan nomor HP baru
-                                              Navigator.of(context).pop();
-                                            },
-                                            child: const Text('Update'),
-                                          ),
-                                          TextButton(
-                                            onPressed: () {
-                                              Navigator.of(context).pop();
-                                            },
-                                            child: const Text('Cancel'),
+                                          Row(
+                                            mainAxisAlignment: MainAxisAlignment
+                                                .spaceEvenly, // Untuk mengatur jarak antara tombol
+                                            children: [
+                                              BuildButton(
+                                                width: size.width /
+                                                    3, // Mengatur lebar tombol
+                                                height: size.height / 16,
+                                                label: 'Cancel',
+                                                onTap: () {
+                                                  Navigator.of(context).pop();
+                                                },
+                                              ),
+                                              SizedBox(
+                                                width: 10,
+                                              ),
+                                              BuildButton(
+                                                width: size.width /
+                                                    3, // Mengatur lebar tombol
+                                                height: size.height / 16,
+                                                label: 'Update',
+                                                onTap: () {
+                                                  updateNoHp(
+                                                      newNoHp); // Panggil fungsi updateNoHp dengan nomor HP baru
+                                                  Navigator.of(context).pop();
+                                                },
+                                              ),
+                                            ],
                                           ),
                                         ],
                                       );
@@ -256,12 +261,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   );
                                 },
                               ),
-                              const SizedBox(
-                                height: 20,
-                              )
                             ],
                           ),
                         ),
+                        const SizedBox(
+                          height: 20,
+                        )
                       ],
                     ),
                   ),

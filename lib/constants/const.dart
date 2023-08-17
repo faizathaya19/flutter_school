@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-Color backgroundColor1 = const Color.fromARGB(255, 110, 204, 175);
-Color backgroundCard1 = const Color.fromARGB(255, 219, 219, 219);
-Color buttonColor1 = const Color.fromARGB(255, 31, 29, 43);
+Color backgroundColor1 = const Color.fromARGB(255, 221, 242, 236);
+Color backgroundCard1 = const Color.fromARGB(255, 255, 255, 255);
+Color buttonColor1 = const Color.fromARGB(255, 45, 151, 151);
 Color inputColor1 = const Color.fromRGBO(246, 249, 255, 0.6);
 Color primaryTextColor = const Color(0xffF1F0F2);
-Color basicTextColor = Color.fromARGB(255, 0, 0, 0);
+Color basicTextColor = const Color.fromARGB(255, 0, 0, 0);
 Color secondaryTextColor = const Color(0xff999999);
-Color inputColor4 = const Color.fromRGBO(102, 102, 102, 0.8);
+Color inputColor4 = const Color.fromARGB(204, 255, 255, 255);
 
 TextStyle primaryTextStyle = GoogleFonts.poppins(
   color: primaryTextColor,

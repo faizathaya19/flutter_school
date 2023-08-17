@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:bpibs/services/api_service.dart';
+import 'package:bpibs/ui/widgets/DialogShow.dart';
 import 'package:bpibs/ui/widgets/buildButton_widget.dart';
 import 'package:bpibs/ui/widgets/buildDropdownButton_widget.dart';
 import 'package:bpibs/ui/widgets/buildTextField_widget.dart';
@@ -27,6 +28,18 @@ class VisitregisformScreenState extends State<VisitregisformScreen> {
   String? selectedLocation;
   String? selectedTime;
   TextEditingController whatsappController = TextEditingController();
+  Map<String, dynamic> profile = {};
+
+  List<Map<String, dynamic>> dateList = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    getProfile();
+
+    _fetchDateActList();
+  }
 
   Map<String, List<String>> visitOption = {
     'Tetap di area BPIBS': [
@@ -39,6 +52,27 @@ class VisitregisformScreenState extends State<VisitregisformScreen> {
       '07.00 - 17.00',
     ],
   };
+
+  Future<void> getProfile() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? userProfile = prefs.getString('userProfile');
+    if (userProfile != null) {
+      setState(() {
+        profile = json.decode(userProfile);
+      });
+    }
+  }
+
+  Future<void> _fetchDateActList() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? nis = prefs.getString('nis');
+
+    List<Map<String, dynamic>> list = await ApiService.fetchDateActList(nis);
+    setState(() {
+      dateList = list;
+      isLoading = false;
+    });
+  }
 
   Future<void> registerVisit(
     String nis,
@@ -67,51 +101,29 @@ class VisitregisformScreenState extends State<VisitregisformScreen> {
         if (response.statusCode == 200) {
           var jsonResponse = jsonDecode(response.body);
           if (jsonResponse['status'] == 'success') {
-            // Data berhasil disimpan, tampilkan dialog sukses
-            showDialog(
-              context: context,
-              barrierDismissible: false,
-              builder: (ctx) => AlertDialog(
-                title: const Text('Success'),
-                content: Text(jsonResponse['message']),
-              ),
-            );
-
-            // Menunggu selama 5 detik sebelum pindah ke layar beranda
-            Timer(const Duration(seconds: 3), () {
+            // Berhasil menambahkan data
+            showSuccessDialog(context, jsonResponse['message'], () {
               Navigator.of(context).pop();
               Navigator.of(context).pushNamed(HomeScreen.id);
             });
           } else {
             // Gagal menambahkan data
-            showErrorDialog(jsonResponse['message']);
+            showErrorDialog(context, jsonResponse['message'], () {
+              Navigator.of(context).pop();
+            });
           }
         } else {
           // Terjadi masalah pada server
-          showErrorDialog('Terjadi masalah pada server.');
+          showErrorDialog(context, 'Terjadi masalah pada server.', () {
+            Navigator.of(context).pop();
+          });
         }
       }
     } catch (e) {
-      showErrorDialog('Terjadi masalah pada koneksi.');
+      showErrorDialog(context, 'Terjadi masalah pada koneksi.', () {
+        Navigator.of(context).pop();
+      });
     }
-  }
-
-  void showErrorDialog(String message) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Error'),
-        content: Text(message),
-        actions: <Widget>[
-          TextButton(
-            child: const Text('Okay'),
-            onPressed: () {
-              Navigator.of(ctx).pop();
-            },
-          ),
-        ],
-      ),
-    );
   }
 
   @override
@@ -126,6 +138,7 @@ class VisitregisformScreenState extends State<VisitregisformScreen> {
         toolbarHeight: 100,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_outlined),
+          color: Colors.black,
           onPressed: () {
             Navigator.popAndPushNamed(context, HomeScreen.id);
           },
@@ -152,18 +165,20 @@ class VisitregisformScreenState extends State<VisitregisformScreen> {
                 color: backgroundCard1,
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: const Column(
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Faiz athaya ramadhan',
+                    '${profile['nama_lengkap']}',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   SizedBox(height: 10),
-                  Text('Periode kunjungan : Ahad,14 mei 2024'),
+                  Text('Tanggal Penjemputan tersedia :'),
+                  SizedBox(height: 5),
+                  Text(dateList.isNotEmpty ? dateList[0]['tanggal'] ?? '' : ''),
                 ],
               ),
             ),
@@ -243,7 +258,10 @@ class VisitregisformScreenState extends State<VisitregisformScreen> {
                               nis, selectedLocation!, selectedTime!, whatsapp);
                         } else {
                           showErrorDialog(
-                              'Mohon lengkapi data yang diperlukan.');
+                              context, 'Mohon lengkapi data yang diperlukan.',
+                              () {
+                            Navigator.of(context).pop();
+                          });
                         }
                       },
                       label: 'Kirim',
